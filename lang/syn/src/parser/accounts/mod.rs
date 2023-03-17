@@ -210,6 +210,7 @@ pub fn parse_account_field(f: &syn::Field) -> ParseResult<AccountField> {
                 ident,
                 ty,
                 constraints: account_constraints,
+                raw_field: f.clone(),
                 docs,
             })
         }

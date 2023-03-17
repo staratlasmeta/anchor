@@ -215,6 +215,7 @@ pub struct Field {
     pub ident: Ident,
     pub constraints: ConstraintGroup,
     pub ty: Ty,
+    pub raw_field: syn::Field,
     /// IDL Doc comment
     pub docs: Option<Vec<String>>,
 }

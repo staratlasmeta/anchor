@@ -17,7 +17,7 @@ anchor-debug = []
 seeds = []
 
 [dependencies]
-proc-macro2 = { version = "1.0", features=["span-locations"]}
+proc-macro2 = { version = "1.0", features = ["span-locations"] }
 proc-macro2-diagnostics = "0.9"
 quote = "1.0"
 syn = { version = "1.0.60", features = ["full", "extra-traits", "parsing"] }
@@ -28,3 +28,11 @@ serde_json = "1.0"
 sha2 = "0.9.2"
 thiserror = "1.0"
 bs58 = "0.3.1"
+
+# In order to pull from these repos, you need to set up git authentication with Cargo:
+# https://doc.rust-lang.org/cargo/appendix/git-authentication.html
+
+typeforge_core = { git = "https://github.com/staratlasmeta/typesmith", rev = "3167ac5c50e9c9396c57137813648ce82ee49a0c" }
+#typeforge_core = { path = "../../../typesmith/crates/typeforge_core" }
+idl = { git = "https://github.com/staratlasmeta/typesmith", rev = "3167ac5c50e9c9396c57137813648ce82ee49a0c" }
+#idl = { path = "../../../typesmith/crates/idl" }
