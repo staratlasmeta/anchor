@@ -1790,7 +1790,6 @@ dependencies = [
 [[package]]
 name = "idl"
 version = "0.1.0"
-source = "git+https://github.com/staratlasmeta/typesmith?rev=3167ac5c50e9c9396c57137813648ce82ee49a0c#3167ac5c50e9c9396c57137813648ce82ee49a0c"
 dependencies = [
  "anyhow",
  "serde",
@@ -4690,7 +4689,6 @@ dependencies = [
 [[package]]
 name = "typeforge_core"
 version = "0.0.1"
-source = "git+https://github.com/staratlasmeta/typesmith?rev=3167ac5c50e9c9396c57137813648ce82ee49a0c#3167ac5c50e9c9396c57137813648ce82ee49a0c"
 dependencies = [
  "convert_case",
  "idl",

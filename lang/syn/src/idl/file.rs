@@ -7,7 +7,9 @@ use anyhow::{anyhow, Result};
 use heck::MixedCase;
 use quote::ToTokens;
 use std::collections::{HashMap, HashSet};
+use std::fmt::Debug;
 use std::path::Path;
+use syn::Attribute;
 use typeforge_core::{DerivedArgs, SeedTypes};
 
 const DERIVE_NAME: &str = "Accounts";
@@ -620,10 +622,27 @@ fn idl_accounts(
                 docs: if !no_docs { acc.docs.clone() } else { None },
                 pda: pda::parse(ctx, accounts, acc, seeds_feature),
                 relations: vec![],
-                typesmith_derived: is_typesmith_derived(&acc.raw_field.attrs),
+                typesmith: parse_idl_account_typesmith(&acc.raw_field.attrs),
             }),
         })
         .collect::<Vec<_>>()
+}
+
+fn parse_idl_account_typesmith(attributes: &[Attribute]) -> Option<TypeSmithAccountDetails> {
+    let mut details = TypeSmithAccountDetails::default();
+    attributes
+        .iter()
+        .filter(|attr| !attr.tokens.is_empty())
+        .for_each(|attr| {
+            if let Some(ident) = attr.path.get_ident() {
+                let ident = ident.to_string();
+                match ident.as_str() {
+                    "derived" => details.derived = true,
+                    "funder" => details.optional_signer = true,
+                }
+            }
+        });
+    None
 }
 
 fn is_typesmith_derived(attrs: &[syn::Attribute]) -> bool {
@@ -631,3 +650,5 @@ fn is_typesmith_derived(attrs: &[syn::Attribute]) -> bool {
         .iter()
         .any(|attr| attr.path.is_ident("derived") && attr.tokens.is_empty())
 }
+
+// fn is_typesmith_
