@@ -32,7 +32,7 @@ bs58 = "0.3.1"
 # In order to pull from these repos, you need to set up git authentication with Cargo:
 # https://doc.rust-lang.org/cargo/appendix/git-authentication.html
 
-typeforge_core = { git = "https://github.com/staratlasmeta/typesmith", rev = "e3a1fbec7a64962df18bb077249d74b00ec742c5" }
+typeforge_core = { git = "https://github.com/staratlasmeta/typesmith", rev = "093189bca01f6895f96b0fd6da6024be3fc13459" }
 #typeforge_core = { path = "../../../typesmith/crates/typeforge_core" }
-idl = { git = "https://github.com/staratlasmeta/typesmith", rev = "e3a1fbec7a64962df18bb077249d74b00ec742c5" }
+idl = { git = "https://github.com/staratlasmeta/typesmith", rev = "093189bca01f6895f96b0fd6da6024be3fc13459" }
 #idl = { path = "../../../typesmith/crates/idl" }
