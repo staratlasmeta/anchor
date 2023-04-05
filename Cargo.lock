@@ -323,9 +323,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.69"
+version = "1.0.70"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "224afbd727c3d6e4b90103ece64b8d1b67fbb1973b1046c2281eed3f3803f800"
+checksum = "7de8ce5e0f9f8d88245311066a578d72b7af3e7088f32783804676302df237e4"
 
 [[package]]
 name = "arrayref"
@@ -1790,7 +1790,6 @@ dependencies = [
 [[package]]
 name = "idl"
 version = "0.1.0"
-source = "git+https://github.com/staratlasmeta/typesmith?rev=198f396bddc9241aed696d556896822d9f6fff44#198f396bddc9241aed696d556896822d9f6fff44"
 dependencies = [
  "anyhow",
  "serde",
@@ -4690,8 +4689,8 @@ dependencies = [
 [[package]]
 name = "typeforge_core"
 version = "0.0.1"
-source = "git+https://github.com/staratlasmeta/typesmith?rev=198f396bddc9241aed696d556896822d9f6fff44#198f396bddc9241aed696d556896822d9f6fff44"
 dependencies = [
+ "anyhow",
  "convert_case",
  "idl",
  "proc-macro-error",

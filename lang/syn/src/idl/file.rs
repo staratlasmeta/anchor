@@ -8,6 +8,7 @@ use heck::MixedCase;
 use quote::ToTokens;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
+use syn::{Error, ItemStruct};
 use typeforge_core::{DerivedArgs, parse_typesmith_account_details, SeedTypes};
 
 const DERIVE_NAME: &str = "Accounts";
@@ -79,6 +80,8 @@ pub fn parse(
 				} else {
 					vec![]
 				};
+
+				let mut derived_args = vec![];
 				let args = ix
 						.args
 						.iter()
@@ -90,6 +93,9 @@ pub fn parse(
 							};
 							let typesmith_derived =
 									derived_args_vec.contains(&arg.name.to_string().to_lowercase());
+							if typesmith_derived {
+								derived_args.push(arg.name.to_string().to_mixed_case());
+							}
 							// println!(
 							//     "arg_name: {}, derived: {}, derived_args_vec: {:#?}",
 							//     arg.name, typesmith_derived, derived_args_vec
@@ -104,7 +110,7 @@ pub fn parse(
 						.collect::<Vec<_>>();
 				// todo: don't unwrap
 				let accounts_strct = accs.get(&ix.anchor_ident.to_string()).unwrap();
-				let accounts = idl_accounts(&ctx, accounts_strct, &accs, seeds_feature, no_docs);
+				let accounts = idl_accounts(&ctx, accounts_strct, &accs, seeds_feature, no_docs, &derived_args)?;
 				let ret_type_str = ix.returns.ty.to_token_stream().to_string();
 				let returns = match ret_type_str.as_str() {
 					"()" => None,
@@ -154,6 +160,7 @@ pub fn parse(
 	let mut accounts = vec![];
 	let mut types = vec![];
 	let ty_defs = parse_ty_defs(&ctx, no_docs)?;
+	let pda_helpers = parse_pda_helpers(&ctx)?;
 
 	let account_structs = parse_accounts(&ctx);
 	let account_names: HashSet<String> = account_structs
@@ -198,6 +205,7 @@ pub fn parse(
 		instructions,
 		types,
 		accounts,
+		pda_helpers,
 		events: if events.is_empty() {
 			None
 		} else {
@@ -326,6 +334,40 @@ fn parse_consts(ctx: &CrateContext) -> Vec<&syn::ItemConst> {
 			.collect()
 }
 
+fn parse_seeds_from_struct(item_strct: &ItemStruct) -> std::result::Result<Option<Vec<TypeSmithSeed>>, Error> {
+	item_strct
+			.attrs
+			.iter()
+			.find_map(|attr| {
+				if attr.path.is_ident("seeds") {
+					let parsed_seed_types = attr.parse_args_with(SeedTypes::parse_terminated);
+					Some(parsed_seed_types.map(|seed_types| {
+						seed_types
+								.iter()
+								.map(|seed_type| seed_type.clone().into())
+								.collect::<Vec<TypeSmithSeed>>()
+					}))
+				} else {
+					None
+				}
+			})
+			.transpose()
+}
+
+fn parse_pda_helpers(ctx: &CrateContext) -> Result<Vec<IdlPdaHelper>> {
+	let mut pda_helpers = vec![];
+	for strct in ctx.structs().filter(|item_struct| item_struct.fields.is_empty()) {
+		let seeds = parse_seeds_from_struct(strct)?;
+		if let Some(seeds) = seeds {
+			pda_helpers.push(IdlPdaHelper {
+				name: strct.ident.to_string(),
+				seeds,
+			});
+		}
+	}
+	Ok(pda_helpers)
+}
+
 // Parse all user defined types in the file.
 fn parse_ty_defs(ctx: &CrateContext, no_docs: bool) -> Result<Vec<IdlTypeDefinition>> {
 	let mut unpacked_structs = vec![];
@@ -355,23 +397,7 @@ fn parse_ty_defs(ctx: &CrateContext, no_docs: bool) -> Result<Vec<IdlTypeDefinit
 					attr_name == "derive" && attr_string.contains("Unpackable")
 				});
 
-				let typesmith_seeds_res = item_strct
-						.attrs
-						.iter()
-						.find_map(|attr| {
-							if attr.path.is_ident("seeds") {
-								let parsed_seed_types = attr.parse_args_with(SeedTypes::parse_terminated);
-								Some(parsed_seed_types.map(|seed_types| {
-									seed_types
-											.iter()
-											.map(|seed_type| seed_type.clone().into())
-											.collect::<Vec<TypeSmithSeed>>()
-								}))
-							} else {
-								None
-							}
-						})
-						.transpose();
+				let typesmith_seeds_res = parse_seeds_from_struct(&item_strct);
 
 				let typesmith = match typesmith_seeds_res {
 					Ok(seeds) => seeds.map(|seeds| TypeSmithAccount { seeds }),
@@ -409,7 +435,7 @@ fn parse_ty_defs(ctx: &CrateContext, no_docs: bool) -> Result<Vec<IdlTypeDefinit
 							})
 							.collect::<Result<Vec<IdlField>>>(),
 					syn::Fields::Unnamed(_) => return None,
-					_ => panic!("Empty structs are allowed."),
+					syn::Fields::Unit => panic!("Empty structs are allowed."),
 				};
 
 				let struct_res = fields.map(|fields| IdlTypeDefinition {
@@ -594,22 +620,23 @@ fn idl_accounts(
 	global_accs: &HashMap<String, AccountsStruct>,
 	seeds_feature: bool,
 	no_docs: bool,
-) -> Vec<IdlAccountItem> {
+	derived_args: &Vec<String>,
+) -> Result<Vec<IdlAccountItem>> {
 	accounts
 			.fields
 			.iter()
 			.map(|acc: &AccountField| match acc {
 				AccountField::CompositeField(comp_f) => {
-					let accs_strct = global_accs.get(&comp_f.symbol).unwrap_or_else(|| {
-						panic!("Could not resolve Accounts symbol {}", comp_f.symbol)
-					});
-					let accounts = idl_accounts(ctx, accs_strct, global_accs, seeds_feature, no_docs);
-					IdlAccountItem::IdlAccounts(IdlAccounts {
+					let accs_strct = global_accs.get(&comp_f.symbol).ok_or_else(|| {
+						anyhow!("Could not resolve Accounts symbol {}", comp_f.symbol)
+					})?;
+					let accounts = idl_accounts(ctx, accs_strct, global_accs, seeds_feature, no_docs, derived_args)?;
+					Ok(IdlAccountItem::IdlAccounts(IdlAccounts {
 						name: comp_f.ident.to_string().to_mixed_case(),
 						accounts,
-					})
+					}))
 				}
-				AccountField::Field(acc) => IdlAccountItem::IdlAccount(IdlAccount {
+				AccountField::Field(acc) => Ok(IdlAccountItem::IdlAccount(IdlAccount {
 					name: acc.ident.to_string().to_mixed_case(),
 					is_mut: acc.constraints.is_mutable(),
 					is_signer: match acc.ty {
@@ -620,8 +647,8 @@ fn idl_accounts(
 					docs: if !no_docs { acc.docs.clone() } else { None },
 					pda: pda::parse(ctx, accounts, acc, seeds_feature),
 					relations: vec![],
-					typesmith: parse_typesmith_account_details(&acc.raw_field.attrs),
-				}),
+					typesmith: parse_typesmith_account_details(&acc.raw_field.attrs, &derived_args).map_err(|e| e.context(format!("Failed to parse TypeSmithAccountDetails for field `{}` in accounts struct `{}`", acc.ident, accounts.ident)))?,
+				})),
 			})
-			.collect::<Vec<_>>()
+			.collect::<Result<Vec<_>>>()
 }
