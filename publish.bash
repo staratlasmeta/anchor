@@ -1,6 +1,8 @@
 #!/bin/bash
 
-cargp publish -p anchor-syn
+set -e
+
+cargo publish -p anchor-syn
 cargo publish -p anchor-attribute-access-control
 cargo publish -p anchor-attribute-account
 cargo publish -p anchor-attribute-constant
