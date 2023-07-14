@@ -1230,7 +1230,6 @@ fn _build_cwd(
 ) -> Result<()> {
     let exit = std::process::Command::new("cargo")
         .arg("build-sbf")
-        .args(["--arch", "bpf"])
         .args(cargo_args)
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
