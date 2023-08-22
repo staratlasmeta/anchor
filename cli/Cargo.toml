@@ -1,6 +1,6 @@
 [package]
 name = "anchor-cli"
-version = "0.25.19"
+version = "0.25.20"
 authors = ["armaniferrante <armaniferrante@gmail.com>"]
 edition = "2021"
 repository = "https://github.com/coral-xyz/anchor"
