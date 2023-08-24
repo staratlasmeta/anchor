@@ -2,7 +2,7 @@
 
 set -e
 
-steps=(step0 step1 step2 step3)
+steps=(step0 step1 step2 step3 step4)
 step0=(anchor-syn)
 step1=(
   anchor-attribute-access-control
@@ -15,10 +15,14 @@ step1=(
   anchor-attribute-state
   anchor-derive-accounts
 )
-step2=(anchor-lang)
+step2=(
+  anchor-lang
+)
 step3=(
   anchor-spl
   anchor-client
+)
+step4=(
   anchor-cli
 )
 
