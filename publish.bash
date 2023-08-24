@@ -30,7 +30,7 @@ for stepName in "${steps[@]}"; do
   declare -n step="$stepName"
   pids=()
   for prog in "${step[@]}"; do
-    cargo publish -p "$prog" &
+    cargo publish --registry star-atlas -p "$prog" &
     pids+=($!)
   done
   for pid in "${pids[@]}"; do
