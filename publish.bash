@@ -15,12 +15,16 @@ step1=(
   anchor-attribute-state
   anchor-derive-accounts
 )
-step2=(anchor-lang)
+step2=(
+  anchor-lang
+)
 step3=(
   anchor-spl
   anchor-client
 )
-step4=(anchor-cli)
+step4=(
+  anchor-cli
+)
 
 for stepName in "${steps[@]}"; do
   declare -n step="$stepName"
