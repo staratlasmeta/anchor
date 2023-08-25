@@ -10,6 +10,7 @@ use anchor_lang::__private::CLOSED_ACCOUNT_DISCRIMINATOR;
 use arrayref::array_ref;
 use solana_program::account_info::AccountInfo;
 use solana_program::instruction::AccountMeta;
+use solana_program::msg;
 use solana_program::pubkey::Pubkey;
 use std::cell::{Ref, RefMut};
 use std::collections::{BTreeMap, BTreeSet};
@@ -236,12 +237,15 @@ impl<'info, T: ZeroCopy + Owner> Accounts<'info> for AccountLoader<'info, T> {
 
 impl<'info, T: ZeroCopy + Owner> AccountsExit<'info> for AccountLoader<'info, T> {
     // The account *cannot* be loaded when this is called.
-    fn exit(&self, _program_id: &Pubkey) -> Result<()> {
-        let mut data = self.acc_info.try_borrow_mut_data()?;
-        let dst: &mut [u8] = &mut data;
-        if dst[..8] != CLOSED_ACCOUNT_DISCRIMINATOR {
-            let mut writer = BpfWriter::new(dst);
-            writer.write_all(&T::discriminator()).unwrap();
+    fn exit(&self, program_id: &Pubkey) -> Result<()> {
+        msg!("AccountLoader::exit");
+        if program_id == &T::owner() {
+            let mut data = self.acc_info.try_borrow_mut_data()?;
+            let dst: &mut [u8] = &mut data;
+            if dst[..8] != CLOSED_ACCOUNT_DISCRIMINATOR {
+                let mut writer = BpfWriter::new(dst);
+                writer.write_all(&T::discriminator()).unwrap();
+            }
         }
         Ok(())
     }
