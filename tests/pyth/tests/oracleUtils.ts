@@ -1,5 +1,5 @@
 import { Buffer } from "buffer";
-import { AnchorProvider, BN, Program, web3 } from "@project-serum/anchor";
+import { AnchorProvider, BN, Program, web3 } from "@staratlas/anchor";
 
 export const Magic = 0xa1b2c3d4;
 export const Version1 = 1;

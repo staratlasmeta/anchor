@@ -1,11 +1,11 @@
-import * as anchor from "@project-serum/anchor";
+import * as anchor from "@staratlas/anchor";
 import {
   Program,
   BN,
   IdlAccounts,
   AnchorError,
   Wallet,
-} from "@project-serum/anchor";
+} from "@staratlas/anchor";
 import {
   PublicKey,
   Keypair,

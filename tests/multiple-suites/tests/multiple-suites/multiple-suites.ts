@@ -1,5 +1,5 @@
-import * as anchor from "@project-serum/anchor";
-import { Program } from "@project-serum/anchor";
+import * as anchor from "@staratlas/anchor";
+import { Program } from "@staratlas/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { assert } from "chai";
 import { MultipleSuites } from "../../target/types/multiple_suites";

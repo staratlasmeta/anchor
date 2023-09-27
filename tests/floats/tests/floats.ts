@@ -1,5 +1,5 @@
-import * as anchor from "@project-serum/anchor";
-import { Program, getProvider } from "@project-serum/anchor";
+import * as anchor from "@staratlas/anchor";
+import { Program, getProvider } from "@staratlas/anchor";
 import { Keypair, SystemProgram } from "@solana/web3.js";
 import { Floats } from "../target/types/floats";
 import { assert } from "chai";

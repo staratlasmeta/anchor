@@ -2,7 +2,7 @@
 
 const process = require("process");
 const fs = require("fs");
-const anchor = require("@project-serum/anchor");
+const anchor = require("@staratlas/anchor");
 const { Market, OpenOrders } = require("@project-serum/serum");
 const Account = anchor.web3.Account;
 const Program = anchor.Program;

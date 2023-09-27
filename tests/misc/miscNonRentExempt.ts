@@ -1,5 +1,5 @@
-import * as anchor from "@project-serum/anchor";
-import { Program, AnchorError } from "@project-serum/anchor";
+import * as anchor from "@staratlas/anchor";
+import { Program, AnchorError } from "@staratlas/anchor";
 import {
   PublicKey,
   Keypair,

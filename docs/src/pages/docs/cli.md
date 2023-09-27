@@ -186,7 +186,7 @@ from the workspace's `Anchor.toml`. For example,
 ```javascript
 // File: migrations/deploys.js
 
-const anchor = require('@project-serum/anchor')
+const anchor = require('@staratlas/anchor')
 
 module.exports = async function (provider) {
   anchor.setProvider(provider)

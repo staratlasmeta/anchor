@@ -1,5 +1,5 @@
-import * as anchor from "@project-serum/anchor";
-import { AnchorError, Program } from "@project-serum/anchor";
+import * as anchor from "@staratlas/anchor";
+import { AnchorError, Program } from "@staratlas/anchor";
 import splToken from "@solana/spl-token";
 import { DeclareId } from "../target/types/declare_id";
 import { assert } from "chai";

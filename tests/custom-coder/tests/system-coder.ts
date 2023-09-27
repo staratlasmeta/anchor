@@ -1,5 +1,5 @@
-import * as anchor from "@project-serum/anchor";
-import { Native } from "@project-serum/anchor";
+import * as anchor from "@staratlas/anchor";
+import { Native } from "@staratlas/anchor";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
   Keypair,

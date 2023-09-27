@@ -1,5 +1,5 @@
-import * as anchor from "@project-serum/anchor";
-import { Program } from "@project-serum/anchor";
+import * as anchor from "@staratlas/anchor";
+import { Program } from "@staratlas/anchor";
 import { assert } from "chai";
 import { ValidatorClone } from "../target/types/validator_clone";
 

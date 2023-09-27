@@ -1,5 +1,5 @@
-import * as anchor from "@project-serum/anchor";
-import { Program } from "@project-serum/anchor";
+import * as anchor from "@staratlas/anchor";
+import { Program } from "@staratlas/anchor";
 import { IdlCommandsOne } from "../target/types/idl_commands_one";
 import { IdlCommandsTwo } from "../target/types/idl_commands_two";
 import { assert } from "chai";
