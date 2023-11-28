@@ -306,8 +306,9 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                             #[cfg(not(feature = "no-log-ix-name"))]
                             anchor_lang::prelude::msg!(#ix_name_log);
 
+                            let mut ix_data_vals = ix_data;
                             // Deserialize instruction data.
-                            let ix = instruction::state::#ix_name::deserialize(&mut &ix_data[..])
+                            let ix = instruction::state::#ix_name::deserialize(&mut ix_data_vals)
                                 .map_err(|_| anchor_lang::error::ErrorCode::InstructionDidNotDeserialize)?;
                             let instruction::state::#variant_arm = ix;
 
@@ -360,11 +361,12 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                             {
                                 let mut instance = loader.load_init()?;
                                 instance.new(
-                                    anchor_lang::context::Context::new(
+                                    anchor_lang::context::Context::new_with_ix_data(
                                         program_id,
                                         &mut ctor_user_def_accounts,
                                         remaining_accounts,
                                         __bumps,
+                                        ix_data_vals,
                                     ),
                                     #(#ctor_untyped_args),*
                                 )?;
@@ -386,8 +388,9 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                             #[cfg(not(feature = "no-log-ix-name"))]
                             anchor_lang::prelude::msg!(#ix_name_log);
 
+                            let mut ix_data_vals = ix_data;
                             // Deserialize instruction data.
-                            let ix = instruction::state::#ix_name::deserialize(&mut &ix_data[..])
+                            let ix = instruction::state::#ix_name::deserialize(&mut ix_data_vals)
                                 .map_err(|_| anchor_lang::error::ErrorCode::InstructionDidNotDeserialize)?;
                             let instruction::state::#variant_arm = ix;
 
@@ -403,11 +406,12 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
 
                             // Invoke the ctor.
                             let instance = #mod_name::#name::new(
-                                anchor_lang::context::Context::new(
+                                anchor_lang::context::Context::new_with_ix_data(
                                     program_id,
                                     &mut ctor_user_def_accounts,
                                     remaining_accounts,
                                     __bumps,
+                                    ix_data_vals,
                                 ),
                                 #(#ctor_untyped_args),*
                             )?;
@@ -495,8 +499,9 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                                     #[cfg(not(feature = "no-log-ix-name"))]
                                     anchor_lang::prelude::msg!(#ix_name_log);
 
+                                    let mut ix_data_vals = ix_data;
                                     // Deserialize instruction.
-                                    let ix = instruction::state::#ix_name::deserialize(&mut &ix_data[..])
+                                    let ix = instruction::state::#ix_name::deserialize(&mut ix_data_vals)
                                         .map_err(|_| anchor_lang::error::ErrorCode::InstructionDidNotDeserialize)?;
                                     let instruction::state::#variant_arm = ix;
 
@@ -522,11 +527,12 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                                         &mut __reallocs,
                                     )?;
                                     let ctx =
-                                        anchor_lang::context::Context::new(
+                                        anchor_lang::context::Context::new_with_ix_data(
                                             program_id,
                                             &mut accounts,
                                             remaining_accounts,
                                             __bumps,
+                                            ix_data_vals,
                                         );
 
                                     // Execute user defined function.
@@ -555,8 +561,9 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                                     #[cfg(not(feature = "no-log-ix-name"))]
                                     anchor_lang::prelude::msg!(#ix_name_log);
 
+                                    let mut ix_data_vals = ix_data;
                                     // Deserialize instruction.
-                                    let ix = instruction::state::#ix_name::deserialize(&mut &ix_data[..])
+                                    let ix = instruction::state::#ix_name::deserialize(&mut ix_data_vals)
                                         .map_err(|_| anchor_lang::error::ErrorCode::InstructionDidNotDeserialize)?;
                                     let instruction::state::#variant_arm = ix;
 
@@ -588,11 +595,12 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                                         &mut __reallocs,
                                     )?;
                                     let ctx =
-                                        anchor_lang::context::Context::new(
+                                        anchor_lang::context::Context::new_with_ix_data(
                                             program_id,
                                             &mut accounts,
                                             remaining_accounts,
-                                            __bumps
+                                            __bumps,
+                                            ix_data_vals,
                                         );
 
                                     // Execute user defined function.
@@ -672,7 +680,7 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
 
                                 let deserialize_instruction = quote! {
                                     #args_struct
-                                    let ix = Args::deserialize(&mut &ix_data[..])
+                                    let ix = Args::deserialize(&mut ix_data_vals)
                                         .map_err(|_| anchor_lang::error::ErrorCode::InstructionDidNotDeserialize)?;
                                     let Args {
                                         #(#ix_arg_names),*
@@ -690,6 +698,7 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                                             #[cfg(not(feature = "no-log-ix-name"))]
                                             anchor_lang::prelude::msg!(#ix_name_log);
 
+                                            let mut ix_data_vals = ix_data;
                                             // Deserialize instruction.
                                             #deserialize_instruction
 
@@ -721,11 +730,12 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                                                 &mut __reallocs,
                                             )?;
                                             let ctx =
-                                                anchor_lang::context::Context::new(
+                                                anchor_lang::context::Context::new_with_ix_data(
                                                     program_id,
                                                     &mut accounts,
                                                     remaining_accounts,
                                                     __bumps,
+                                                    ix_data_vals,
                                                 );
 
                                             // Execute user defined function.
@@ -757,6 +767,7 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                                             #[cfg(not(feature = "no-log-ix-name"))]
                                             anchor_lang::prelude::msg!(#ix_name_log);
 
+                                            let mut ix_data_vals = ix_data;
                                             // Deserialize instruction.
                                             #deserialize_instruction
 
@@ -777,11 +788,12 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
 
                                             // Execute user defined function.
                                             #state_name::#ix_method_name(
-                                                anchor_lang::context::Context::new(
+                                                anchor_lang::context::Context::new_with_ix_data(
                                                     program_id,
                                                     &mut accounts,
                                                     remaining_accounts,
-                                                    __bumps
+                                                    __bumps,
+                                                    ix_data_vals,
                                                 ),
                                                 #(#ix_arg_names),*
                                             )?;
@@ -826,8 +838,9 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                     #[cfg(not(feature = "no-log-ix-name"))]
                     anchor_lang::prelude::msg!(#ix_name_log);
 
+                    let mut ix_data_vals = ix_data;
                     // Deserialize data.
-                    let ix = instruction::#ix_name::deserialize(&mut &ix_data[..])
+                    let ix = instruction::#ix_name::deserialize(&mut ix_data_vals)
                         .map_err(|_| anchor_lang::error::ErrorCode::InstructionDidNotDeserialize)?;
                     let instruction::#variant_arm = ix;
 
@@ -848,11 +861,12 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
 
                     // Invoke user defined handler.
                     let result = #program_name::#ix_method_name(
-                        anchor_lang::context::Context::new(
+                        anchor_lang::context::Context::new_with_ix_data(
                             program_id,
                             &mut accounts,
                             remaining_accounts,
                             __bumps,
+                            ix_data_vals,
                         ),
                         #(#ix_arg_names),*
                     )?;

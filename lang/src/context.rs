@@ -34,6 +34,7 @@ pub struct Context<'a, 'b, 'c, 'info, T> {
     /// convenience so that handlers don't have to recalculate bump seeds or
     /// pass them in as arguments.
     pub bumps: BTreeMap<String, u8>,
+    pub remaining_ix_data: &'a [u8],
 }
 
 impl<'a, 'b, 'c, 'info, T: fmt::Debug> fmt::Debug for Context<'a, 'b, 'c, 'info, T> {
@@ -48,6 +49,7 @@ impl<'a, 'b, 'c, 'info, T: fmt::Debug> fmt::Debug for Context<'a, 'b, 'c, 'info,
 }
 
 impl<'a, 'b, 'c, 'info, T: Accounts<'info>> Context<'a, 'b, 'c, 'info, T> {
+    #[deprecated(note = "Use `new_with_ix_data` instead")]
     pub fn new(
         program_id: &'a Pubkey,
         accounts: &'b mut T,
@@ -59,6 +61,23 @@ impl<'a, 'b, 'c, 'info, T: Accounts<'info>> Context<'a, 'b, 'c, 'info, T> {
             accounts,
             remaining_accounts,
             bumps,
+            remaining_ix_data: &[],
+        }
+    }
+
+    pub fn new_with_ix_data(
+        program_id: &'a Pubkey,
+        accounts: &'b mut T,
+        remaining_accounts: &'c [AccountInfo<'info>],
+        bumps: BTreeMap<String, u8>,
+        remaining_ix_data: &'a [u8],
+    ) -> Self {
+        Self {
+            program_id,
+            accounts,
+            remaining_accounts,
+            bumps,
+            remaining_ix_data,
         }
     }
 }
