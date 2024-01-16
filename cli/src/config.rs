@@ -2,6 +2,7 @@ use crate::is_hidden;
 use anchor_client::Cluster;
 use anchor_syn::idl::Idl;
 use anyhow::{anyhow, Context, Error, Result};
+use cargo_toml::{Inheritable, Package};
 use clap::{ArgEnum, Parser};
 use heck::SnakeCase;
 use reqwest::Url;
@@ -97,7 +98,10 @@ impl Manifest {
 
     pub fn version(&self) -> String {
         match &self.package {
-            Some(package) => package.version.to_string(),
+            Some(Package {
+                version: Inheritable::Set(v),
+                ..
+            }) => v.to_string(),
             _ => "0.0.0".to_string(),
         }
     }
