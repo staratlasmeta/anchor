@@ -12,9 +12,6 @@ pub mod token;
 #[cfg(feature = "token_2022")]
 pub mod token_2022;
 
-#[cfg(feature = "token_2022")]
-pub mod token_interface;
-
 #[cfg(feature = "dex")]
 pub mod dex;
 

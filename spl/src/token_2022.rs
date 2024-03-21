@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use anchor_lang::solana_program::account_info::AccountInfo;
 
 use anchor_lang::solana_program::pubkey::Pubkey;
@@ -521,6 +522,65 @@ pub struct Token2022;
 impl anchor_lang::Id for Token2022 {
   fn id() -> Pubkey {
     ID
+  }
+}
+
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct Token2022Account(spl_token_2022::state::Account);
+
+impl anchor_lang::AccountDeserialize for Token2022Account {
+  fn try_deserialize_unchecked(buf: &mut &[u8]) -> anchor_lang::Result<Self> {
+    spl_token_2022::extension::StateWithExtensions::<spl_token_2022::state::Account>::unpack(
+      buf,
+    )
+      .map(|t| Token2022Account(t.base))
+      .map_err(Into::into)
+  }
+}
+
+impl anchor_lang::AccountSerialize for Token2022Account {}
+
+impl anchor_lang::Owner for Token2022Account {
+  fn owner() -> Pubkey {
+    spl_token_2022::ID
+  }
+}
+
+impl Deref for Token2022Account {
+  type Target = spl_token_2022::state::Account;
+
+  fn deref(&self) -> &Self::Target {
+    &self.0
+  }
+}
+
+#[cfg(feature = "idl-build")]
+impl anchor_lang::IdlBuild for Token2022Account {}
+
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct Mint2022(spl_token_2022::state::Mint);
+
+impl anchor_lang::AccountDeserialize for Mint2022 {
+  fn try_deserialize_unchecked(buf: &mut &[u8]) -> anchor_lang::Result<Self> {
+    spl_token_2022::extension::StateWithExtensions::<spl_token_2022::state::Mint>::unpack(buf)
+      .map(|t| Mint2022(t.base))
+      .map_err(Into::into)
+  }
+}
+
+impl anchor_lang::AccountSerialize for Mint2022 {}
+
+impl anchor_lang::Owner for Mint2022 {
+  fn owner() -> Pubkey {
+    spl_token_2022::ID
+  }
+}
+
+impl Deref for Mint2022 {
+  type Target = spl_token_2022::state::Mint;
+
+  fn deref(&self) -> &Self::Target {
+    &self.0
   }
 }
 
