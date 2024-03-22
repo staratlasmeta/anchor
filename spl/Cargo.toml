@@ -23,7 +23,7 @@ token_2022 = ["spl-token-2022"]
 anchor-lang = { path = "../lang", version = "0.25.26", registry = "star-atlas", features = ["derive"] }
 mpl-token-metadata = { version = "1.2.7", optional = true, features = ["no-entrypoint"] }
 serum_dex = { git = "https://github.com/project-serum/serum-dex", rev = "1be91f2", version = "0.4.0", features = ["no-entrypoint"], optional = true }
-solana-program = ">=1.10.29"
+solana-program = ">=1.18,<1.18.7"
 spl-associated-token-account = { version = "2.2", features = ["no-entrypoint"], optional = true }
 spl-memo = { version = "4", features = ["no-entrypoint"], optional = true }
 spl-token = { version = "4", features = ["no-entrypoint"], optional = true }
