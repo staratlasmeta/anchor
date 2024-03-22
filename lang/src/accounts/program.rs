@@ -87,7 +87,7 @@ impl<'info, T: Id + Clone + fmt::Debug> fmt::Debug for Program<'info, T> {
 }
 
 impl<'a, T: Id + Clone> Program<'a, T> {
-    fn new(info: AccountInfo<'a>) -> Program<'a, T> {
+    pub(crate) fn new(info: AccountInfo<'a>) -> Program<'a, T> {
         Self {
             info,
             _phantom: PhantomData,
