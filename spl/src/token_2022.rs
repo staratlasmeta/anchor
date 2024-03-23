@@ -521,6 +521,10 @@ impl anchor_lang::IdlBuild for Token2022Account {}
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Mint2022(spl_token_2022::state::Mint);
 
+impl Mint2022 {
+  pub const LEN: usize = spl_token_2022::state::Mint::LEN;
+}
+
 impl anchor_lang::AccountDeserialize for Mint2022 {
   fn try_deserialize_unchecked(buf: &mut &[u8]) -> anchor_lang::Result<Self> {
     spl_token_2022::extension::StateWithExtensions::<spl_token_2022::state::Mint>::unpack(buf)
@@ -548,3 +552,4 @@ impl Deref for Mint2022 {
 // Field parsers to save compute. All account validation is assumed to be done
 // outside of these methods.
 pub use crate::token::accessor;
+use crate::token::Mint;
