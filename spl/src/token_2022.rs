@@ -1,4 +1,5 @@
 use std::ops::Deref;
+use solana_program::program_pack::Pack;
 use anchor_lang::solana_program::account_info::AccountInfo;
 
 use anchor_lang::solana_program::pubkey::Pubkey;
@@ -483,6 +484,10 @@ impl anchor_lang::Id for Token2022 {
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Token2022Account(spl_token_2022::state::Account);
+
+impl Token2022Account {
+  pub const LEN: usize = spl_token_2022::state::Account::LEN;
+}
 
 impl anchor_lang::AccountDeserialize for Token2022Account {
   fn try_deserialize_unchecked(buf: &mut &[u8]) -> anchor_lang::Result<Self> {
