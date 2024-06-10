@@ -1,9 +1,14 @@
 use crate::AccountsStruct;
-use quote::quote;
+use quote::{format_ident, quote};
 use std::iter;
 use syn::punctuated::Punctuated;
 use syn::{ConstParam, LifetimeDef, Token, TypeParam};
 use syn::{GenericParam, PredicateLifetime, WhereClause, WherePredicate};
+
+pub fn make_unreal_accounts(ident: &syn::Ident) -> syn::Ident {
+    format_ident!("{}Accounts", ident)
+}
+
 
 mod __client_accounts;
 mod __cpi_client_accounts;
