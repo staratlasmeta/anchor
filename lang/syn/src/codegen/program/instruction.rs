@@ -156,7 +156,6 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
             let accounts_ident = ix.anchor_ident.clone();
 
             let unreal_name = make_unreal_accounts(&accounts_ident);
-            let ix_docs = ix.docs.clone();
 
             let ix_docs = if let Some(ref docs) = ix.docs {
                 docs.iter()

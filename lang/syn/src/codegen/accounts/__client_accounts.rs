@@ -137,7 +137,7 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
     ))
         .unwrap();
 
-    let wbg_name = make_unreal_accounts(name);
+    let cbg_name = make_unreal_accounts(name);
 
     quote! {
         /// An internal, Anchor generated module. This is used (as an
@@ -157,11 +157,11 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
             #struct_doc
             #[repr(C)]
             #[derive(anchor_lang::AnchorSerialize)]
-            pub struct #wbg_name {
+            pub struct #cbg_name {
                 #(#account_struct_fields),*
             }
             
-            pub type #name = #wbg_name;
+            pub type #name = #cbg_name;
 
             #[automatically_derived]
             impl anchor_lang::ToAccountMetas for #name {
