@@ -11,6 +11,7 @@ publish = ["star-atlas"]
 [features]
 init-if-needed = ["anchor-derive-accounts/init-if-needed"]
 derive = []
+unreal = []
 default = []
 anchor-debug = [
     "anchor-attribute-access-control/anchor-debug",
