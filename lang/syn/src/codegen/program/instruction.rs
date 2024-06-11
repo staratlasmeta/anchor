@@ -150,12 +150,8 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                     }
                 }
             };
-
-            let cbg_ix_name = format_ident!("{}_{name}", program.name.to_string().to_snake_case());
-
+            
             let accounts_ident = ix.anchor_ident.clone();
-
-            let unreal_name = make_unreal_accounts(&accounts_ident);
 
             let ix_docs = if let Some(ref docs) = ix.docs {
                 docs.iter()
@@ -171,6 +167,52 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                 quote!()
             };
 
+            let cbg_ix_name = format_ident!("{}_{name}", program.name.to_string().to_snake_case());
+            let unreal_name = make_unreal_accounts(&accounts_ident);
+            let mut unreal_parameters = vec![quote!(accounts: crate::accounts::#unreal_name)];
+
+            let metas = if ix.needs_remaining_accounts {
+                unreal_parameters.extend([quote!(remaining_accounts: *const AccountMeta), quote!(remaining_len: usize)]);
+                quote! {
+                    let mut metas = accounts.to_account_metas(None);
+                    if remaining_len > 0 {
+                        let remaining = unsafe {
+                            ::core::slice::from_raw_parts(remaining_accounts, remaining_len)
+                        };
+                        metas.extend_from_slice(remaining);
+                    }
+                }
+            } else {
+                quote! {
+                    let metas = accounts.to_account_metas(None);
+                }
+            };
+
+            let unreal_arg_logic = if !ix.args.is_empty() {
+                unreal_parameters.push(quote!(args: *const #ix_name_camel));
+                quote! {
+                    let args = unsafe { &*args };
+                    let bytes = args.try_to_vec().expect("Failed to serialize instruction args");
+                }
+            } else {
+                quote! {
+                    let bytes: [u8; 0] = [];
+                }
+            };
+
+            let unreal_function = quote! {
+                #[cfg(feature = "unreal")]
+                #ix_docs
+                #[no_mangle]
+                pub unsafe extern "C" fn #cbg_ix_name(#(#unreal_parameters),*) -> anchor_lang::unreal::BetterCInstruction {
+                    #metas
+                    #unreal_arg_logic
+                    let ix = Instruction::new_with_bytes(crate::ID, &bytes, metas);
+                    ix.into()
+                }
+            };
+
+
             // If no args, output a "unit" variant instead of a struct variant.
             if ix.args.is_empty() {
                 quote! {
@@ -179,22 +221,8 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                     pub struct #ix_name_camel;
                     
                     #ix_data_trait
-
-                    #[cfg(feature = "unreal")]
-                    #ix_docs
-                    #[no_mangle]
-                    pub unsafe extern "C" fn #cbg_ix_name(accounts: crate::accounts::#unreal_name, remaining_accounts: *const AccountMeta, remaining_len: usize) -> anchor_lang::unreal::BetterCInstruction {
-                        let mut metas = accounts.to_account_metas(None);
-                        if remaining_len > 0 {
-                            let remaining = unsafe {
-                                slice::from_raw_parts(remaining_accounts, remaining_len)
-                            };
-                            metas.extend_from_slice(remaining);
-                        }
-                        
-                        let ix = Instruction::new_with_bytes(crate::ID, &[], metas);
-                        ix.into()
-                    }
+                    
+                    #unreal_function
                 }
             } else {
                 quote! {
@@ -204,27 +232,10 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                     pub struct #ix_name_camel {
                         #(#raw_args),*
                     }
-
+                    
                     #ix_data_trait
                     
-                    #[cfg(feature = "unreal")]
-                    #ix_docs
-                    #[no_mangle]
-                    pub unsafe extern "C" fn #cbg_ix_name(accounts: crate::accounts::#unreal_name, args: *const #ix_name_camel, remaining_accounts: *const AccountMeta, remaining_len: usize) -> anchor_lang::unreal::BetterCInstruction {
-                        let mut metas = accounts.to_account_metas(None);
-                        if remaining_len > 0 {
-                            let remaining = unsafe {
-                                slice::from_raw_parts(remaining_accounts, remaining_len)
-                            };
-                            metas.extend_from_slice(remaining);
-                        }
-                        
-                        let args = unsafe { &*args };
-                        let bytes = args.try_to_vec().expect("Failed to serialize instruction args");
-                        
-                        let ix = Instruction::new_with_bytes(crate::ID, &bytes, metas);
-                        ix.into()
-                    }
+                    #unreal_function
                 }
             }
         })

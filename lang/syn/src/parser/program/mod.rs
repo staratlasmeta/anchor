@@ -6,10 +6,24 @@ use syn::spanned::Spanned;
 mod instructions;
 mod state;
 
-pub fn parse(program_mod: syn::ItemMod) -> ParseResult<Program> {
+pub fn parse(mut program_mod: syn::ItemMod) -> ParseResult<Program> {
     let state = state::parse(&program_mod)?;
     let docs = docs::parse(&program_mod.attrs);
     let (ixs, fallback_fn) = instructions::parse(&program_mod)?;
+    // strip #[remaining_accounts] from the program mod items.
+    program_mod.content.iter_mut().for_each(|(_, items)| {
+        for item in items.iter_mut() {
+            if let syn::Item::Fn(item_fn) = item {
+                item_fn.attrs.retain(|attr| {
+                    match attr.parse_meta() {
+                        Ok(syn::Meta::Path(path)) => !path.is_ident("remaining_accounts"),
+                        _ => true,
+                    }
+                });
+            }
+        }
+    });
+    
     Ok(Program {
         state,
         ixs,
