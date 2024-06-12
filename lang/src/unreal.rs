@@ -1,8 +1,8 @@
+use solana_program::instruction::{AccountMeta, Instruction};
+use solana_program::pubkey::Pubkey;
 use std::alloc::{GlobalAlloc, Layout};
 use std::ffi::c_void;
 use std::ptr::slice_from_raw_parts_mut;
-use solana_program::instruction::{AccountMeta, Instruction};
-use solana_program::pubkey::Pubkey;
 
 extern "C" {
     // FMemory::Malloc

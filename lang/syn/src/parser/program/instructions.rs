@@ -1,3 +1,4 @@
+use syn::Meta;
 use crate::parser::docs;
 use crate::parser::program::ctx_accounts_ident;
 use crate::{FallbackFn, Ix, IxArg, IxReturn};
@@ -27,7 +28,14 @@ pub fn parse(program_mod: &syn::ItemMod) -> ParseResult<(Vec<Ix>, Option<Fallbac
             let docs = docs::parse(&method.attrs);
             let returns = parse_return(method)?;
             let anchor_ident = ctx_accounts_ident(&ctx.raw_arg)?;
+            let needs_remaining_accounts = method.attrs.iter().any(|attr| {
+                match attr.parse_meta() {
+                    Ok(Meta::Path(path)) => path.is_ident("remaining_accounts"),
+                    _ => false,
+                }
+            });
             Ok(Ix {
+                needs_remaining_accounts,
                 raw_method: method.clone(),
                 ident: method.sig.ident.clone(),
                 docs,
@@ -118,7 +126,7 @@ pub fn parse_return(method: &syn::ItemFn) -> ParseResult<IxReturn> {
                     return Err(ParseError::new(
                         ty.span(),
                         "expected generic return type to be a type",
-                    ))
+                    ));
                 }
             };
             Ok(IxReturn { ty })
