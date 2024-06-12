@@ -21,4 +21,4 @@ anchor-lang = { path = "../../../../lang" }
 [dev-dependencies]
 anchor-client = { path = "../../../../client", features = ["debug"] }
 bytemuck = "1.4.0"
-solana-program-test = "1.9.13"
+solana-program-test = ">=1.16,<1.19"
