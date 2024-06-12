@@ -161,6 +161,7 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
                 #(#account_struct_fields),*
             }
             
+            /// Re-export the generated struct as the original struct name.
             pub type #name = #cbg_name;
 
             #[automatically_derived]

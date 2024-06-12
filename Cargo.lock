@@ -270,7 +270,6 @@ dependencies = [
 name = "anchor-lang"
 version = "0.25.26"
 dependencies = [
- "ahash 0.8.6",
  "anchor-attribute-access-control",
  "anchor-attribute-account",
  "anchor-attribute-constant",
