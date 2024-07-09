@@ -38,7 +38,7 @@ unsafe impl GlobalAlloc for Alloc {
 static ALLOC: Alloc = Alloc(AtomicPtr::new(null_mut()));
 
 #[no_mangle]
-extern "C" fn set_allocator_functions(
+pub extern "C" fn set_allocator_functions(
     malloc: extern "C" fn(usize, usize) -> *mut c_void,
     free: extern "C" fn(*mut c_void),
 ) {
