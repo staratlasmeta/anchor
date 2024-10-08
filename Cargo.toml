@@ -14,3 +14,4 @@ members = [
     "lang/syn",
     "spl",
 ]
+resolver = "2"
