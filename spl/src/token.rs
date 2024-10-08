@@ -33,6 +33,34 @@ pub fn transfer<'info>(
     .map_err(Into::into)
 }
 
+pub fn transfer_checked<'info>(
+    ctx: CpiContext<'_, '_, '_, 'info, TransferChecked<'info>>,
+    amount: u64,
+    decimals: u8,
+) -> Result<()> {
+    let ix = spl_token::instruction::transfer_checked(
+        &spl_token::ID,
+        ctx.accounts.from.key,
+        ctx.accounts.mint.key,
+        ctx.accounts.to.key,
+        ctx.accounts.authority.key,
+        &[],
+        amount,
+        decimals,
+    )?;
+    solana_program::program::invoke_signed(
+        &ix,
+        &[
+            ctx.accounts.from,
+            ctx.accounts.mint,
+            ctx.accounts.to,
+            ctx.accounts.authority,
+        ],
+        ctx.signer_seeds,
+    )
+    .map_err(Into::into)
+}
+
 pub fn mint_to<'info>(
     ctx: CpiContext<'_, '_, '_, 'info, MintTo<'info>>,
     amount: u64,
@@ -102,6 +130,34 @@ pub fn approve<'info>(
     .map_err(Into::into)
 }
 
+pub fn approve_checked<'info>(
+    ctx: CpiContext<'_, '_, '_, 'info, ApproveChecked<'info>>,
+    amount: u64,
+    decimals: u8,
+) -> Result<()> {
+    let ix = spl_token::instruction::approve_checked(
+        &spl_token::ID,
+        ctx.accounts.to.key,
+        ctx.accounts.mint.key,
+        ctx.accounts.delegate.key,
+        ctx.accounts.authority.key,
+        &[],
+        amount,
+        decimals,
+    )?;
+    solana_program::program::invoke_signed(
+        &ix,
+        &[
+            ctx.accounts.to,
+            ctx.accounts.mint,
+            ctx.accounts.delegate,
+            ctx.accounts.authority,
+        ],
+        ctx.signer_seeds,
+    )
+    .map_err(Into::into)
+}
+
 pub fn revoke<'info>(ctx: CpiContext<'_, '_, '_, 'info, Revoke<'info>>) -> Result<()> {
     let ix = spl_token::instruction::revoke(
         &spl_token::ID,
@@ -134,6 +190,23 @@ pub fn initialize_account<'info>(
             ctx.accounts.authority.clone(),
             ctx.accounts.rent.clone(),
         ],
+        ctx.signer_seeds,
+    )
+    .map_err(Into::into)
+}
+
+pub fn initialize_account3<'info>(
+    ctx: CpiContext<'_, '_, '_, 'info, InitializeAccount3<'info>>,
+) -> Result<()> {
+    let ix = spl_token::instruction::initialize_account3(
+        &spl_token::ID,
+        ctx.accounts.account.key,
+        ctx.accounts.mint.key,
+        ctx.accounts.authority.key,
+    )?;
+    solana_program::program::invoke_signed(
+        &ix,
+        &[ctx.accounts.account, ctx.accounts.mint],
         ctx.signer_seeds,
     )
     .map_err(Into::into)
@@ -222,6 +295,23 @@ pub fn initialize_mint<'info>(
     .map_err(Into::into)
 }
 
+pub fn initialize_mint2<'info>(
+    ctx: CpiContext<'_, '_, '_, 'info, InitializeMint2<'info>>,
+    decimals: u8,
+    authority: &Pubkey,
+    freeze_authority: Option<&Pubkey>,
+) -> Result<()> {
+    let ix = spl_token::instruction::initialize_mint2(
+        &spl_token::ID,
+        ctx.accounts.mint.key,
+        authority,
+        freeze_authority,
+        decimals,
+    )?;
+    solana_program::program::invoke_signed(&ix, &[ctx.accounts.mint], ctx.signer_seeds)
+        .map_err(Into::into)
+}
+
 pub fn set_authority<'info>(
     ctx: CpiContext<'_, '_, '_, 'info, SetAuthority<'info>>,
     authority_type: spl_token::instruction::AuthorityType,
@@ -265,6 +355,14 @@ pub struct Transfer<'info> {
 }
 
 #[derive(Accounts)]
+pub struct TransferChecked<'info> {
+    pub from: AccountInfo<'info>,
+    pub mint: AccountInfo<'info>,
+    pub to: AccountInfo<'info>,
+    pub authority: AccountInfo<'info>,
+}
+
+#[derive(Accounts)]
 pub struct MintTo<'info> {
     pub mint: AccountInfo<'info>,
     pub to: AccountInfo<'info>,
@@ -286,6 +384,14 @@ pub struct Approve<'info> {
 }
 
 #[derive(Accounts)]
+pub struct ApproveChecked<'info> {
+    pub to: AccountInfo<'info>,
+    pub mint: AccountInfo<'info>,
+    pub delegate: AccountInfo<'info>,
+    pub authority: AccountInfo<'info>,
+}
+
+#[derive(Accounts)]
 pub struct Revoke<'info> {
     pub source: AccountInfo<'info>,
     pub authority: AccountInfo<'info>,
@@ -297,6 +403,13 @@ pub struct InitializeAccount<'info> {
     pub mint: AccountInfo<'info>,
     pub authority: AccountInfo<'info>,
     pub rent: AccountInfo<'info>,
+}
+
+#[derive(Accounts)]
+pub struct InitializeAccount3<'info> {
+    pub account: AccountInfo<'info>,
+    pub mint: AccountInfo<'info>,
+    pub authority: AccountInfo<'info>,
 }
 
 #[derive(Accounts)]
@@ -324,6 +437,11 @@ pub struct ThawAccount<'info> {
 pub struct InitializeMint<'info> {
     pub mint: AccountInfo<'info>,
     pub rent: AccountInfo<'info>,
+}
+
+#[derive(Accounts)]
+pub struct InitializeMint2<'info> {
+    pub mint: AccountInfo<'info>,
 }
 
 #[derive(Accounts)]
