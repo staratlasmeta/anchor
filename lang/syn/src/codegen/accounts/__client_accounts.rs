@@ -1,8 +1,8 @@
+use crate::codegen::accounts::make_unreal_accounts;
 use crate::{AccountField, AccountsStruct, Ty};
 use heck::SnakeCase;
 use quote::{format_ident, quote};
 use std::str::FromStr;
-use crate::codegen::accounts::make_unreal_accounts;
 
 // Generates the private `__client_accounts` mod implementation, containing
 // a generated struct mapping 1-1 to the `Accounts` struct, except with
@@ -13,8 +13,8 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
         "__client_accounts_{}",
         accs.ident.to_string().to_snake_case()
     )
-        .parse()
-        .unwrap();
+    .parse()
+    .unwrap();
 
     let account_struct_fields: Vec<proc_macro2::TokenStream> = accs
         .fields
@@ -29,7 +29,7 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
                                 "#[doc = r#\"{}\"#]",
                                 docs_line
                             ))
-                                .unwrap()
+                            .unwrap()
                         })
                         .collect()
                 } else {
@@ -41,8 +41,8 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
                     s.symbol.to_snake_case(),
                     unreal_accounts,
                 )
-                    .parse()
-                    .unwrap();
+                .parse()
+                .unwrap();
                 quote! {
                     #docs
                     pub #name: #symbol
@@ -57,7 +57,7 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
                                 "#[doc = r#\"{}\"#]",
                                 docs_line
                             ))
-                                .unwrap()
+                            .unwrap()
                         })
                         .collect()
                 } else {
@@ -135,7 +135,7 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
         "#[doc = \" Generated client accounts for [`{}`].\"]",
         name
     ))
-        .unwrap();
+    .unwrap();
 
     let cbg_name = make_unreal_accounts(name);
 
@@ -160,7 +160,7 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
             pub struct #cbg_name {
                 #(#account_struct_fields),*
             }
-            
+
             pub type #name = #cbg_name;
 
             #[automatically_derived]
@@ -176,4 +176,3 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
         }
     }
 }
-

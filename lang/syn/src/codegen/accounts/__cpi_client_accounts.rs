@@ -149,7 +149,7 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
             })
             .collect()
     };
-    
+
     let phantom_data = if account_struct_fields.is_empty() {
         quote! { phantom: std::marker::PhantomData<&'info ()> }
     } else {

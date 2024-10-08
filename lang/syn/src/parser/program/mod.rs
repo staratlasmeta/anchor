@@ -14,16 +14,14 @@ pub fn parse(mut program_mod: syn::ItemMod) -> ParseResult<Program> {
     program_mod.content.iter_mut().for_each(|(_, items)| {
         for item in items.iter_mut() {
             if let syn::Item::Fn(item_fn) = item {
-                item_fn.attrs.retain(|attr| {
-                    match attr.parse_meta() {
-                        Ok(syn::Meta::Path(path)) => !path.is_ident("remaining_accounts"),
-                        _ => true,
-                    }
+                item_fn.attrs.retain(|attr| match attr.parse_meta() {
+                    Ok(syn::Meta::Path(path)) => !path.is_ident("remaining_accounts"),
+                    _ => true,
                 });
             }
         }
     });
-    
+
     Ok(Program {
         state,
         ixs,

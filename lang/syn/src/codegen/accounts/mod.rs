@@ -9,7 +9,6 @@ pub fn make_unreal_accounts(ident: &syn::Ident) -> syn::Ident {
     format_ident!("{}Accounts", ident)
 }
 
-
 mod __client_accounts;
 mod __cpi_client_accounts;
 mod constraints;

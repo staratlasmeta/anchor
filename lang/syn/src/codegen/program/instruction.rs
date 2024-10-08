@@ -1,11 +1,10 @@
-use std::str::FromStr;
+use crate::codegen::accounts::make_unreal_accounts;
 use crate::codegen::program::common::*;
 use crate::parser;
 use crate::Program;
 use heck::{CamelCase, SnakeCase};
 use quote::{format_ident, quote};
-use crate::codegen::accounts::make_unreal_accounts;
-
+use std::str::FromStr;
 
 pub fn generate(program: &Program) -> proc_macro2::TokenStream {
     let ctor_variant = match &program.state {
