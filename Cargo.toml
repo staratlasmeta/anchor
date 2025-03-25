@@ -5,6 +5,7 @@ lto = true
 codegen-units = 1
 
 [workspace]
+resolver = "2"
 members = [
     "cli",
     "client",
@@ -14,3 +15,30 @@ members = [
     "lang/syn",
     "spl",
 ]
+
+[workspace.package]
+version = "0.25.25"
+
+[workspace.dependencies]
+#solana-cli-config = ">=1.10.29,<=2.1.16"
+#solana-client = ">=1.10.29,<=2.1.16"
+#solana-faucet = ">=1.10.29,<=2.1.16"
+#solana-program = ">=1.10.29,<=2.1.16"
+#solana-sdk = ">=1.10.29,<=2.1.16"
+#solana-account-decoder = ">=1.10.29,<=2.1.16"
+
+solana-cli-config = "=2.1.16"
+solana-client = "=2.1.16"
+solana-faucet = "=2.1.16"
+solana-program = "=2.1.16"
+solana-sdk = "=2.1.16"
+solana-account-decoder = "=2.1.16"
+
+# version locks
+base64ct = "<1.7.0"
+bytemuck_derive = "<1.8.1"
+fixed = "<1.29.0"
+half = "<2.5.0"
+litemap = ">0.7.0,<0.7.5"
+native-tls = "<0.2.14"
+zerofrom = "<0.1.6"
