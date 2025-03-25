@@ -25,3 +25,4 @@ serum_dex = { version = "0.4.0", features = ["no-entrypoint"], optional = true }
 solana-program.workspace = true
 spl-associated-token-account = { version = "6.0.0", features = ["no-entrypoint"], optional = true }
 spl-token = { version = "7.0.0", features = ["no-entrypoint"], optional = true }
+borsh.workspace = true

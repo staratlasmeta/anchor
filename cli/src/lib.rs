@@ -41,7 +41,10 @@ use std::path::{Path, PathBuf};
 use std::process::{Child, Stdio};
 use std::str::FromStr;
 use std::string::ToString;
+use serde::de::Error;
+use solana_program::borsh0_10;
 use tar::Archive;
+use anchor_lang::prelude::borsh::BorshSerialize;
 
 pub mod config;
 mod path;
@@ -510,6 +513,13 @@ pub fn entry(opts: Opts) -> Result<()> {
             cargo_args,
         ),
     }
+}
+
+
+fn borsh_try_to_vec<T: BorshSerialize>(value: &T) -> Result<Vec<u8>, std::io::Error> {
+    let mut buf = Vec::new();
+    value.serialize(&mut buf)?;
+    Ok(buf)
 }
 
 fn init(cfg_override: &ConfigOverride, name: String, javascript: bool, no_git: bool) -> Result<()> {
@@ -1395,7 +1405,7 @@ pub fn verify_bin(program_id: Pubkey, bin_path: &Path, cluster: &str) -> Result<
                         .map_or(Err(anyhow!("Account not found")), Ok)?;
                     #[allow(deprecated)]
                     let bin = account.data
-                        [UpgradeableLoaderState::programdata_data_offset().unwrap_or(0)..]
+                        [UpgradeableLoaderState::size_of_programdata_metadata()..]
                         .to_vec();
 
                     if let UpgradeableLoaderState::ProgramData {
@@ -1414,7 +1424,7 @@ pub fn verify_bin(program_id: Pubkey, bin_path: &Path, cluster: &str) -> Result<
                 }
                 UpgradeableLoaderState::Buffer { .. } => {
                     #[allow(deprecated)]
-                    let offset = UpgradeableLoaderState::buffer_data_offset().unwrap_or(0);
+                    let offset = UpgradeableLoaderState::size_of_buffer_metadata();
                     (
                         account.data[offset..].to_vec(),
                         BinVerificationState::Buffer,
@@ -1640,7 +1650,7 @@ fn idl_set_buffer(cfg_override: &ConfigOverride, program_id: Pubkey, buffer: Pub
                 AccountMeta::new(keypair.pubkey(), true),
             ];
             let mut data = anchor_lang::idl::IDL_IX_TAG.to_le_bytes().to_vec();
-            data.append(&mut IdlInstruction::SetBuffer.try_to_vec()?);
+            data.append(&mut borsh_try_to_vec(&IdlInstruction::SetBuffer)?);
             Instruction {
                 program_id,
                 accounts,
@@ -2140,7 +2150,7 @@ fn validator_flags(
         flags.push(address.clone());
         flags.push(binary_path);
 
-        if let Some(mut idl) = program.idl.as_mut() {
+        if let Some(idl) = program.idl.as_mut() {
             // Add program address to the IDL.
             idl.metadata = Some(serde_json::to_value(IdlTestMetadata { address })?);
 
@@ -2527,7 +2537,7 @@ fn deploy(
             }
 
             let program_pubkey = program.pubkey()?;
-            if let Some(mut idl) = program.idl.as_mut() {
+            if let Some(idl) = program.idl.as_mut() {
                 // Add program address to the IDL.
                 idl.metadata = Some(serde_json::to_value(IdlTestMetadata {
                     address: program_pubkey.to_string(),
@@ -2695,7 +2705,7 @@ fn create_idl_buffer(
             AccountMeta::new_readonly(sysvar::rent::ID, false),
         ];
         let mut data = anchor_lang::idl::IDL_IX_TAG.to_le_bytes().to_vec();
-        data.append(&mut IdlInstruction::CreateBuffer.try_to_vec()?);
+        data.append(&mut borsh_try_to_vec(&IdlInstruction::CreateBuffer)?);
         Instruction {
             program_id: *program_id,
             accounts,
@@ -2735,7 +2745,7 @@ fn serialize_idl(idl: &Idl) -> Result<Vec<u8>> {
 
 fn serialize_idl_ix(ix_inner: anchor_lang::idl::IdlInstruction) -> Result<Vec<u8>> {
     let mut data = anchor_lang::idl::IDL_IX_TAG.to_le_bytes().to_vec();
-    data.append(&mut ix_inner.try_to_vec()?);
+    data.append(&mut borsh_try_to_vec(&ix_inner)?);
     Ok(data)
 }
 
