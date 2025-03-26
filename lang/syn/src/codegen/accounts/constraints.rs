@@ -26,9 +26,8 @@ pub fn generate(f: &Field) -> proc_macro2::TokenStream {
 pub fn generate_composite(f: &CompositeField) -> proc_macro2::TokenStream {
     let checks: Vec<proc_macro2::TokenStream> = linearize(&f.constraints)
         .iter()
-        .filter_map(|c| match c {
-            Constraint::Raw(_) => Some(c),
-            Constraint::Literal(_) => Some(c),
+        .map(|c| match c {
+            Constraint::Raw(_) | Constraint::Literal(_) => c,
             _ => panic!("Invariant violation: composite constraints can only be raw or literals"),
         })
         .map(|c| generate_constraint_composite(f, c))

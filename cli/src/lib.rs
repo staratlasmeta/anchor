@@ -4,7 +4,7 @@ use crate::config::{
 };
 use anchor_client::Cluster;
 use anchor_lang::idl::{IdlAccount, IdlInstruction, ERASED_AUTHORITY};
-use anchor_lang::{AccountDeserialize, AnchorDeserialize, AnchorSerialize};
+use anchor_lang::{AccountDeserialize, AnchorDeserialize};
 use anchor_syn::idl::Idl;
 use anyhow::{anyhow, Context, Result};
 use clap::Parser;
@@ -41,8 +41,6 @@ use std::path::{Path, PathBuf};
 use std::process::{Child, Stdio};
 use std::str::FromStr;
 use std::string::ToString;
-use serde::de::Error;
-use solana_program::borsh0_10;
 use tar::Archive;
 use anchor_lang::prelude::borsh::BorshSerialize;
 
@@ -1383,7 +1381,7 @@ pub fn verify_bin(program_id: Pubkey, bin_path: &Path, cluster: &str) -> Result<
         let account = client
             .get_account_with_commitment(&program_id, CommitmentConfig::default())?
             .value
-            .map_or(Err(anyhow!("Account not found")), Ok)?;
+            .ok_or(anyhow!("Account not found"))?;
         if account.owner == bpf_loader::id() || account.owner == bpf_loader_deprecated::id() {
             let bin = account.data.to_vec();
             let state = BinVerificationState::ProgramData {
@@ -1402,7 +1400,7 @@ pub fn verify_bin(program_id: Pubkey, bin_path: &Path, cluster: &str) -> Result<
                             CommitmentConfig::default(),
                         )?
                         .value
-                        .map_or(Err(anyhow!("Account not found")), Ok)?;
+                        .ok_or(anyhow!("Account not found"))?;
                     #[allow(deprecated)]
                     let bin = account.data
                         [UpgradeableLoaderState::size_of_programdata_metadata()..]
@@ -1498,14 +1496,14 @@ fn fetch_idl(cfg_override: &ConfigOverride, idl_addr: Pubkey) -> Result<Idl> {
     let mut account = client
         .get_account_with_commitment(&idl_addr, CommitmentConfig::processed())?
         .value
-        .map_or(Err(anyhow!("Account not found")), Ok)?;
+        .ok_or(anyhow!("Account not found"))?;
 
     if account.executable {
         let idl_addr = IdlAccount::address(&idl_addr);
         account = client
             .get_account_with_commitment(&idl_addr, CommitmentConfig::processed())?
             .value
-            .map_or(Err(anyhow!("Account not found")), Ok)?;
+            .ok_or(anyhow!("Account not found"))?;
     }
 
     // Cut off account discriminator.
@@ -1698,7 +1696,7 @@ fn idl_authority(cfg_override: &ConfigOverride, program_id: Pubkey) -> Result<()
             let account = client
                 .get_account_with_commitment(&program_id, CommitmentConfig::processed())?
                 .value
-                .map_or(Err(anyhow!("Account not found")), Ok)?;
+                .ok_or(anyhow!("Account not found"))?;
             if account.executable {
                 IdlAccount::address(&program_id)
             } else {
@@ -1984,7 +1982,7 @@ fn test(
             deploy(cfg_override, None, None)?;
         }
         let mut is_first_suite = true;
-        if cfg.scripts.get("test").is_some() {
+        if cfg.scripts.contains_key("test") {
             is_first_suite = false;
             println!("\nFound a 'test' script in the Anchor.toml. Running it as a test suite!");
             run_test_suite(

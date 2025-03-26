@@ -158,9 +158,8 @@ pub fn interface(
                 .sig
                 .inputs
                 .iter()
-                .filter_map(|arg: &syn::FnArg| match arg {
-                    syn::FnArg::Typed(pat_ty) => Some(pat_ty),
-                    // TODO: just map this to None once we allow this feature.
+                .map(|arg: &syn::FnArg| match arg {
+                    syn::FnArg::Typed(pat_ty) => pat_ty,
                     _ => panic!("Invalid syntax. No self allowed."),
                 })
                 .filter(|pat_ty| {

@@ -53,9 +53,9 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                         })
                         .collect()
                 })
-                .unwrap_or_else(Vec::new)
+                .unwrap_or_default()
         })
-        .unwrap_or_else(Vec::new);
+        .unwrap_or_default();
     // Generate cpi methods for global methods.
     let global_cpi_methods: Vec<proc_macro2::TokenStream> = program
         .ixs

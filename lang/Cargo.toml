@@ -25,6 +25,7 @@ anchor-debug = [
     "anchor-attribute-state/anchor-debug",
     "anchor-derive-accounts/anchor-debug"
 ]
+locked-versions = ["base64ct", "bytemuck_derive", "fixed", "half", "litemap", "native-tls", "zerofrom"]
 
 [dependencies]
 anchor-attribute-access-control = { path = "./attribute/access-control", version = "0.25.25", registry = "star-atlas" }
@@ -45,10 +46,10 @@ solana-program.workspace = true
 thiserror = "1.0.20"
 
 # locked versions
-base64ct.workspace = true
-bytemuck_derive.workspace = true
-fixed.workspace = true
-half.workspace = true
-litemap.workspace = true
-native-tls.workspace = true
-zerofrom.workspace = true
+base64ct = { workspace = true, optional = true }
+bytemuck_derive = { workspace = true, optional = true }
+fixed = { workspace = true, optional = true }
+half = { workspace = true, optional = true }
+litemap = { workspace = true, optional = true }
+native-tls = { workspace = true, optional = true }
+zerofrom = { workspace = true, optional = true }
