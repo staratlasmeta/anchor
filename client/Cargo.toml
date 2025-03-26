@@ -1,6 +1,6 @@
 [package]
 name = "anchor-client"
-version = "0.25.25"
+version.workspace = true
 authors = ["Serum Foundation <foundation@projectserum.com>"]
 edition = "2021"
 license = "Apache-2.0"
