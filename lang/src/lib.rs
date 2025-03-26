@@ -1,3 +1,5 @@
+#![feature(trivial_bounds)]
+
 #![allow(clippy::crate_in_macro_def, clippy::result_large_err)]
 
 //! Anchor ⚓ is a framework for Solana's Sealevel runtime providing several
@@ -312,7 +314,7 @@ pub mod __private {
     impl ZeroCopyAccessor<Pubkey> for [u8; 32] {
         fn get(&self) -> Pubkey {
             #[allow(deprecated)]
-            Pubkey::new(self)
+            Pubkey::new_from_array(*self)
         }
         fn set(input: &Pubkey) -> [u8; 32] {
             input.to_bytes()

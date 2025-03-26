@@ -21,6 +21,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::{fmt, io};
+use std::fmt::Display;
 use walkdir::WalkDir;
 
 pub trait Merge: Sized {
@@ -477,8 +478,8 @@ where
     deserializer.deserialize_any(StringOrCustomCluster(PhantomData))
 }
 
-impl ToString for Config {
-    fn to_string(&self) -> String {
+impl Display for Config {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let programs = {
             let c = ser_programs(&self.programs);
             if c.is_empty() {
@@ -506,7 +507,7 @@ impl ToString for Config {
                 .then(|| self.workspace.clone()),
         };
 
-        toml::to_string(&cfg).expect("Must be well formed")
+        write!(f, "{}", toml::to_string(&cfg).expect("Must be well formed"))
     }
 }
 

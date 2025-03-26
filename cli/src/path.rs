@@ -4,6 +4,7 @@ macro_rules! home_path {
         #[derive(Clone, Debug)]
         pub struct $my_struct(String);
 
+        #[automatically_derived]
         impl Default for $my_struct {
             fn default() -> Self {
                 match dirs::home_dir() {
@@ -19,12 +20,14 @@ macro_rules! home_path {
             }
         }
 
-        impl ToString for $my_struct {
-            fn to_string(&self) -> String {
-                self.0.clone()
+        #[automatically_derived]
+        impl ::std::fmt::Display for $my_struct {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                write!(f, "{}", self.0)
             }
         }
 
+        #[automatically_derived]
         impl FromStr for $my_struct {
             type Err = anyhow::Error;
 

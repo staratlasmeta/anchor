@@ -235,7 +235,7 @@ pub fn parse(
                 .named
                 .iter()
                 .map(|f: &syn::Field| {
-                    let index = match f.attrs.get(0) {
+                    let index = match f.attrs.first() {
                         None => false,
                         Some(i) => parser::tts_to_string(&i.path) == "index",
                     };
@@ -265,7 +265,7 @@ pub fn parse(
         .map(|a| a.ident.to_string())
         .collect::<HashSet<_>>();
 
-    let error_name = error.map(|e| e.name).unwrap_or_else(|| "".to_string());
+    let error_name = error.map(|e| e.name).unwrap_or_default();
 
     // All types that aren't in the accounts section, are in the types section.
     for ty_def in ty_defs {
@@ -342,7 +342,7 @@ fn parse_program_mod(ctx: &CrateContext) -> Option<syn::ItemMod> {
 
 fn parse_error_enum(ctx: &CrateContext) -> Option<syn::ItemEnum> {
     ctx.enums()
-        .filter_map(|item_enum| {
+        .find(|item_enum| {
             let attrs_count = item_enum
                 .attrs
                 .iter()
@@ -352,18 +352,17 @@ fn parse_error_enum(ctx: &CrateContext) -> Option<syn::ItemEnum> {
                 })
                 .count();
             match attrs_count {
-                0 => None,
-                1 => Some(item_enum),
+                0 => false,
+                1 => true,
                 _ => panic!("Invalid syntax: one error attribute allowed"),
             }
         })
-        .next()
         .cloned()
 }
 
 fn parse_events(ctx: &CrateContext) -> Vec<&syn::ItemStruct> {
     ctx.structs()
-        .filter_map(|item_strct| {
+        .filter(|item_strct| {
             let attrs_count = item_strct
                 .attrs
                 .iter()
@@ -373,8 +372,8 @@ fn parse_events(ctx: &CrateContext) -> Vec<&syn::ItemStruct> {
                 })
                 .count();
             match attrs_count {
-                0 => None,
-                1 => Some(item_strct),
+                0 => false,
+                1 => true,
                 _ => panic!("Invalid syntax: one event attribute allowed"),
             }
         })
@@ -383,7 +382,7 @@ fn parse_events(ctx: &CrateContext) -> Vec<&syn::ItemStruct> {
 
 fn parse_accounts(ctx: &CrateContext) -> Vec<&syn::ItemStruct> {
     ctx.structs()
-        .filter_map(|item_strct| {
+        .filter(|item_strct| {
             let attrs_count = item_strct
                 .attrs
                 .iter()
@@ -393,8 +392,8 @@ fn parse_accounts(ctx: &CrateContext) -> Vec<&syn::ItemStruct> {
                 })
                 .count();
             match attrs_count {
-                0 => None,
-                1 => Some(item_strct),
+                0 => false,
+                1 => true,
                 _ => panic!("Invalid syntax: one event attribute allowed"),
             }
         })
