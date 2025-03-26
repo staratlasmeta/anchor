@@ -4,6 +4,7 @@ version.workspace = true
 authors = ["Serum Foundation <foundation@projectserum.com>"]
 edition = "2021"
 license = "Apache-2.0"
+repository = "https://github.com/coral-xyz/anchor"
 description = "Rust client for Anchor programs"
 publish = ["star-atlas"]
 
