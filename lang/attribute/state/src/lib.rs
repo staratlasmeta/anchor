@@ -43,8 +43,7 @@ pub fn state(
             quote! {
                 impl anchor_lang::__private::AccountSize for #struct_ident {
                     fn size(&self) -> anchor_lang::Result<u64> {
-                        Ok(8 + self
-                            .try_to_vec()
+                        Ok(8 + anchor_lang::borsh_try_to_vec(self)
                             .map_err(|_| anchor_lang::error::ErrorCode::AccountDidNotSerialize)?
                             .len() as u64)
                     }

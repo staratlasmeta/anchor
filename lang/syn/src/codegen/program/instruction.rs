@@ -45,7 +45,7 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                 impl anchor_lang::InstructionData for New {
                     fn data(&self) -> Vec<u8> {
                         let mut d = #sighash_tts.to_vec();
-                        d.append(&mut self.try_to_vec().expect("Should always serialize"));
+                        d.append(&mut anchor_lang::borsh_try_to_vec(self).expect("Should always serialize"));
                         d
                     }
                 }
@@ -88,7 +88,7 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                                 impl anchor_lang::InstructionData for #ix_name_camel {
                                     fn data(&self) -> Vec<u8> {
                                         let mut d = #sighash_tts.to_vec();
-                                        d.append(&mut self.try_to_vec().expect("Should always serialize"));
+                                        d.append(&mut anchor_lang::borsh_try_to_vec(self).expect("Should always serialize"));
                                         d
                                     }
                                 }
@@ -144,13 +144,13 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                     impl anchor_lang::InstructionData for #ix_name_camel {
                         fn data(&self) -> Vec<u8> {
                             let mut d = #sighash_tts.to_vec();
-                            d.append(&mut self.try_to_vec().expect("Should always serialize"));
+                            d.append(&mut anchor_lang::borsh_try_to_vec(self).expect("Should always serialize"));
                             d
                         }
                     }
                 }
             };
-            
+
             let accounts_ident = ix.anchor_ident.clone();
 
             let ix_docs = if let Some(ref docs) = ix.docs {
@@ -192,7 +192,7 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                 unreal_parameters.push(quote!(args: *const #ix_name_camel));
                 quote! {
                     let args = unsafe { &*args };
-                    let bytes = args.try_to_vec().expect("Failed to serialize instruction args");
+                    let bytes = anchor_lang::borsh_try_to_vec(&args).expect("Failed to serialize instruction args");
                 }
             } else {
                 quote! {

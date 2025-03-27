@@ -34,7 +34,7 @@ pub fn event(
         impl anchor_lang::Event for #event_name {
             fn data(&self) -> Vec<u8> {
                 let mut d = #discriminator.to_vec();
-                d.append(&mut self.try_to_vec().unwrap());
+                d.append(&mut anchor_lang::borsh_try_to_vec(self).unwrap());
                 d
             }
         }
