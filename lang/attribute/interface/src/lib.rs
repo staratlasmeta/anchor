@@ -206,7 +206,7 @@ pub fn interface(
                         let ix = Args {
                             #(#args_no_tys),*
                         };
-                        let mut ix_data = anchor_lang::AnchorSerialize::try_to_vec(&ix)
+                        let mut ix_data = anchor_lang::borsh_try_to_vec(&ix)
                             .map_err(|_| anchor_lang::error::ErrorCode::InstructionDidNotSerialize)?;
                         let mut data = #sighash_tts.to_vec();
                         data.append(&mut ix_data);

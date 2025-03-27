@@ -4,7 +4,7 @@ use crate::config::{
 };
 use anchor_client::Cluster;
 use anchor_lang::idl::{IdlAccount, IdlInstruction, ERASED_AUTHORITY};
-use anchor_lang::{AccountDeserialize, AnchorDeserialize};
+use anchor_lang::{borsh_try_to_vec, AccountDeserialize, AnchorDeserialize};
 use anchor_syn::idl::Idl;
 use anyhow::{anyhow, Context, Result};
 use clap::Parser;
@@ -42,7 +42,6 @@ use std::process::{Child, Stdio};
 use std::str::FromStr;
 use std::string::ToString;
 use tar::Archive;
-use anchor_lang::prelude::borsh::BorshSerialize;
 
 pub mod config;
 mod path;
@@ -511,13 +510,6 @@ pub fn entry(opts: Opts) -> Result<()> {
             cargo_args,
         ),
     }
-}
-
-
-fn borsh_try_to_vec<T: BorshSerialize>(value: &T) -> Result<Vec<u8>, std::io::Error> {
-    let mut buf = Vec::new();
-    value.serialize(&mut buf)?;
-    Ok(buf)
 }
 
 fn init(cfg_override: &ConfigOverride, name: String, javascript: bool, no_git: bool) -> Result<()> {

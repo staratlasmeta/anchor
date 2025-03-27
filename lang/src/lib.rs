@@ -1,5 +1,4 @@
 #![feature(trivial_bounds)]
-
 #![allow(clippy::crate_in_macro_def, clippy::result_large_err)]
 
 //! Anchor ⚓ is a framework for Solana's Sealevel runtime providing several
@@ -61,6 +60,7 @@ pub use anchor_attribute_interface::interface;
 pub use anchor_attribute_program::program;
 pub use anchor_attribute_state::state;
 pub use anchor_derive_accounts::Accounts;
+use borsh::BorshSerialize;
 /// Borsh is the default serialization format for instructions and accounts.
 pub use borsh::{BorshDeserialize as AnchorDeserialize, BorshSerialize as AnchorSerialize};
 pub use solana_program;
@@ -587,4 +587,12 @@ macro_rules! source {
             line: line!(),
         }
     };
+}
+
+pub fn borsh_try_to_vec<T: BorshSerialize>(
+    value: &T,
+) -> std::result::Result<Vec<u8>, std::io::Error> {
+    let mut buf = Vec::new();
+    value.serialize(&mut buf)?;
+    Ok(buf)
 }

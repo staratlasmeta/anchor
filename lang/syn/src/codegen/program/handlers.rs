@@ -825,7 +825,7 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
             let maybe_set_return_data = match ret_type.to_string().as_str() {
                 "()" => quote! {},
                 _ => quote! {
-                    anchor_lang::solana_program::program::set_return_data(&result.try_to_vec().unwrap());
+                    anchor_lang::solana_program::program::set_return_data(&anchor_lang::borsh_try_to_vec(&result).unwrap());
                 },
             };
             quote! {

@@ -86,7 +86,7 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                     ) -> #method_ret {
                         let ix = {
                             let ix = instruction::#ix_variant;
-                            let mut ix_data = AnchorSerialize::try_to_vec(&ix)
+                            let mut ix_data = anchor_lang::borsh_try_to_vec(&ix)
                                 .map_err(|_| anchor_lang::error::ErrorCode::InstructionDidNotSerialize)?;
                             let mut data = #sighash_tts.to_vec();
                             data.append(&mut ix_data);
