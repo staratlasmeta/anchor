@@ -446,7 +446,7 @@ fn generate_constraint_init_group(f: &Field, c: &ConstraintInitGroup) -> proc_ma
                 // Define the bump and pda variable.
                 #find_pda
 
-                let #field: #ty_decl = {
+                let #field: #ty_decl = ({ #[inline(never)] || {
                     if !#if_needed || AsRef::<AccountInfo>::as_ref(&#field).owner == &anchor_lang::solana_program::system_program::ID {
                         // Define payer variable.
                         #payer
@@ -475,8 +475,8 @@ fn generate_constraint_init_group(f: &Field, c: &ConstraintInitGroup) -> proc_ma
                             return Err(anchor_lang::error::Error::from(anchor_lang::error::ErrorCode::ConstraintTokenOwner).with_account_name(#name_str).with_pubkeys((pa.owner, #owner.key())));
                         }
                     }
-                    pa
-                };
+                    Ok(pa)
+                }}())?;
             }
         }
         InitKind::AssociatedToken { owner, mint } => {
@@ -484,7 +484,7 @@ fn generate_constraint_init_group(f: &Field, c: &ConstraintInitGroup) -> proc_ma
                 // Define the bump and pda variable.
                 #find_pda
 
-                let #field: #ty_decl = {
+                let #field: #ty_decl = ({ #[inline(never)] || {
                     if !#if_needed || AsRef::<AccountInfo>::as_ref(&#field).owner == &anchor_lang::solana_program::system_program::ID {
                         #payer
 
@@ -514,8 +514,8 @@ fn generate_constraint_init_group(f: &Field, c: &ConstraintInitGroup) -> proc_ma
                             return Err(anchor_lang::error::Error::from(anchor_lang::error::ErrorCode::AccountNotAssociatedTokenAccount).with_account_name(#name_str));
                         }
                     }
-                    pa
-                };
+                    Ok(pa)
+                }})()?;
             }
         }
         InitKind::Mint {
@@ -537,7 +537,7 @@ fn generate_constraint_init_group(f: &Field, c: &ConstraintInitGroup) -> proc_ma
                 // Define the bump and pda variable.
                 #find_pda
 
-                let #field: #ty_decl = {
+                let #field: #ty_decl = ({ #[inline(never)] || {
                     if !#if_needed || AsRef::<AccountInfo>::as_ref(&#field).owner == &anchor_lang::solana_program::system_program::ID {
                         // Define payer variable.
                         #payer
@@ -569,8 +569,8 @@ fn generate_constraint_init_group(f: &Field, c: &ConstraintInitGroup) -> proc_ma
                             return Err(anchor_lang::error::Error::from(anchor_lang::error::ErrorCode::ConstraintMintDecimals).with_account_name(#name_str).with_values((pa.decimals, #decimals)));
                         }
                     }
-                    pa
-                };
+                    Ok(pa)
+                }})()?;
             }
         }
         InitKind::Program { owner } => {
@@ -597,7 +597,7 @@ fn generate_constraint_init_group(f: &Field, c: &ConstraintInitGroup) -> proc_ma
                 // Define the bump variable.
                 #find_pda
 
-                let #field = {
+                let #field = ({ #[inline(never)] || {
                     let actual_field = #field.to_account_info();
                     let actual_owner = actual_field.owner;
 
@@ -639,8 +639,8 @@ fn generate_constraint_init_group(f: &Field, c: &ConstraintInitGroup) -> proc_ma
                     }
 
                     // Done.
-                    pa
-                };
+                    Ok(pa)
+                }}())?;
             }
         }
     }
