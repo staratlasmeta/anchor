@@ -92,6 +92,20 @@ pub trait Accounts<'info>: ToAccountMetas + ToAccountInfos<'info> + Sized {
         bumps: &mut BTreeMap<String, u8>,
         reallocs: &mut BTreeSet<Pubkey>,
     ) -> Result<Self>;
+
+    #[inline(never)]
+    fn try_accounts_with_name(
+        program_id: &Pubkey,
+        accounts: &mut &[AccountInfo<'info>],
+        ix_data: &[u8],
+        bumps: &mut BTreeMap<String, u8>,
+        reallocs: &mut BTreeSet<Pubkey>,
+        name: impl ToString,
+    ) -> Result<Self> {
+        Self::try_accounts(program_id, accounts, ix_data, bumps, reallocs).map_err(|e| {
+            e.with_account_name(name)
+        })
+    }
 }
 
 /// The exit procedure for an account. Any cleanup or persistence to storage
