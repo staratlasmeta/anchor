@@ -216,6 +216,7 @@ pub struct Field {
     pub ident: Ident,
     pub constraints: ConstraintGroup,
     pub ty: Ty,
+    pub boxed: bool,
     /// IDL Doc comment
     pub docs: Option<Vec<String>>,
 }
@@ -232,7 +233,7 @@ impl Field {
     pub fn ty_decl(&self) -> proc_macro2::TokenStream {
         let account_ty = self.account_ty();
         let container_ty = self.container_ty();
-        match &self.ty {
+        let field = match &self.ty {
             Ty::AccountInfo => quote! {
                 AccountInfo
             },
@@ -248,17 +249,9 @@ impl Field {
             Ty::SystemAccount => quote! {
                 SystemAccount
             },
-            Ty::Account(AccountTy { boxed, .. }) => {
-                if *boxed {
-                    quote! {
-                        Box<#container_ty<#account_ty>>
-                    }
-                } else {
-                    quote! {
-                        #container_ty<#account_ty>
-                    }
-                }
-            }
+            Ty::Account(AccountTy { .. }) => quote! {
+                #container_ty<#account_ty>
+            },
             Ty::Sysvar(ty) => {
                 let account = match ty {
                     SysvarTy::Clock => quote! {Clock},
@@ -279,6 +272,11 @@ impl Field {
             _ => quote! {
                 #container_ty<#account_ty>
             },
+        };
+        if self.boxed {
+            quote! { Box<#field> }
+        } else {
+            quote! { #field }
         }
     }
 
@@ -301,13 +299,13 @@ impl Field {
                 &anchor_spl::token::ID
             },
         };
-        match &self.ty {
+        let field = match &self.ty {
             Ty::AccountInfo => quote! { #field.to_account_info() },
             Ty::UncheckedAccount => {
                 quote! { UncheckedAccount::try_from(#field.to_account_info()) }
             }
-            Ty::Account(AccountTy { boxed, .. }) => {
-                let stream = if checked {
+            Ty::Account(_) => {
+                if checked {
                     quote! {
                         #container_ty::try_from(
                             &#field,
@@ -319,13 +317,6 @@ impl Field {
                             &#field,
                         ).map_err(|e| e.with_account_name(#field_str))?
                     }
-                };
-                if *boxed {
-                    quote! {
-                        Box::new(#stream)
-                    }
-                } else {
-                    stream
                 }
             }
             Ty::CpiAccount(_) => {
@@ -376,6 +367,11 @@ impl Field {
                     }
                 }
             }
+        };
+        if self.boxed {
+            quote! { Box::new(#field) }
+        } else {
+            quote! { #field }
         }
     }
 
@@ -571,8 +567,6 @@ pub struct LoaderTy {
 pub struct AccountTy {
     // The struct type of the account.
     pub account_type_path: TypePath,
-    // True if the account has been boxed via `Box<T>`.
-    pub boxed: bool,
 }
 
 #[derive(Debug, PartialEq)]

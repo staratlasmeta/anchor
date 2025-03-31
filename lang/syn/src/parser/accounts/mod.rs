@@ -204,11 +204,12 @@ pub fn parse_account_field(f: &syn::Field) -> ParseResult<AccountField> {
     let docs = docs::parse(&f.attrs);
     let account_field = match is_field_primitive(f)? {
         true => {
-            let ty = parse_ty(f)?;
+            let (ty, boxed) = parse_ty(f)?;
             let account_constraints = constraints::parse(f, Some(&ty))?;
             AccountField::Field(Field {
                 ident,
                 ty,
+                boxed,
                 constraints: account_constraints,
                 docs,
             })
@@ -248,43 +249,40 @@ fn is_field_primitive(f: &syn::Field) -> ParseResult<bool> {
     Ok(r)
 }
 
-fn parse_ty(f: &syn::Field) -> ParseResult<Ty> {
-    let path = match &f.ty {
-        syn::Type::Path(ty_path) => ty_path.path.clone(),
-        _ => return Err(ParseError::new(f.ty.span(), "invalid account type given")),
-    };
+fn parse_ty(f: &syn::Field) -> ParseResult<(Ty, bool)> {
+    let path = path_ty(f)?;
+    let (path, is_boxed) = parse_boxed(&path)?;
     let ty = match ident_string(f)?.as_str() {
-        "ProgramState" => Ty::ProgramState(parse_program_state(&path)?),
-        "CpiState" => Ty::CpiState(parse_cpi_state(&path)?),
-        "ProgramAccount" => Ty::ProgramAccount(parse_program_account(&path)?),
-        "CpiAccount" => Ty::CpiAccount(parse_cpi_account(&path)?),
-        "Sysvar" => Ty::Sysvar(parse_sysvar(&path)?),
+        "ProgramState" => Ty::ProgramState(parse_program_state(path)?),
+        "CpiState" => Ty::CpiState(parse_cpi_state(path)?),
+        "ProgramAccount" => Ty::ProgramAccount(parse_program_account(path)?),
+        "CpiAccount" => Ty::CpiAccount(parse_cpi_account(path)?),
+        "Sysvar" => Ty::Sysvar(parse_sysvar(path)?),
         "AccountInfo" => Ty::AccountInfo,
         "UncheckedAccount" => Ty::UncheckedAccount,
-        "Loader" => Ty::Loader(parse_program_account_zero_copy(&path)?),
-        "AccountLoader" => Ty::AccountLoader(parse_program_account_loader(&path)?),
-        "Account" => Ty::Account(parse_account_ty(&path)?),
-        "Program" => Ty::Program(parse_program_ty(&path)?),
+        "Loader" => Ty::Loader(parse_program_account_zero_copy(path)?),
+        "AccountLoader" => Ty::AccountLoader(parse_program_account_loader(path)?),
+        "Account" => Ty::Account(parse_account_ty(path)?),
+        "Program" => Ty::Program(parse_program_ty(path)?),
         "Signer" => Ty::Signer,
         "SystemAccount" => Ty::SystemAccount,
         "ProgramData" => Ty::ProgramData,
         _ => return Err(ParseError::new(f.ty.span(), "invalid account type given")),
     };
 
-    Ok(ty)
+    Ok((ty, is_boxed))
+}
+
+fn path_ty(f: &syn::Field) -> ParseResult<syn::Path> {
+    match &f.ty {
+        syn::Type::Path(ty_path) => Ok(ty_path.path.clone()),
+        _ => Err(ParseError::new(f.ty.span(), "invalid type")),
+    }
 }
 
 fn ident_string(f: &syn::Field) -> ParseResult<String> {
-    let path = match &f.ty {
-        syn::Type::Path(ty_path) => ty_path.path.clone(),
-        _ => return Err(ParseError::new(f.ty.span(), "invalid type")),
-    };
-    if parser::tts_to_string(&path)
-        .replace(' ', "")
-        .starts_with("Box<Account<")
-    {
-        return Ok("Account".to_string());
-    }
+    let path = path_ty(f)?;
+    let (path, _) = parse_boxed(&path)?;
     // TODO: allow segmented paths.
     if path.segments.len() != 1 {
         return Err(ParseError::new(
@@ -340,13 +338,7 @@ fn parse_program_account_loader(path: &syn::Path) -> ParseResult<AccountLoaderTy
 
 fn parse_account_ty(path: &syn::Path) -> ParseResult<AccountTy> {
     let account_type_path = parse_account(path)?;
-    let boxed = parser::tts_to_string(path)
-        .replace(' ', "")
-        .starts_with("Box<Account<");
-    Ok(AccountTy {
-        account_type_path,
-        boxed,
-    })
+    Ok(AccountTy { account_type_path })
 }
 
 fn parse_program_ty(path: &syn::Path) -> ParseResult<ProgramTy> {
@@ -354,16 +346,15 @@ fn parse_program_ty(path: &syn::Path) -> ParseResult<ProgramTy> {
     Ok(ProgramTy { account_type_path })
 }
 
-// TODO: this whole method is a hack. Do something more idiomatic.
-fn parse_account(mut path: &syn::Path) -> ParseResult<syn::TypePath> {
+fn parse_boxed(path: &syn::Path) -> ParseResult<(&syn::Path, bool)> {
     if parser::tts_to_string(path)
         .replace(' ', "")
-        .starts_with("Box<Account<")
+        .starts_with("Box<")
     {
         let segments = &path.segments[0];
         match &segments.arguments {
             syn::PathArguments::AngleBracketed(args) => {
-                // Expected: <'info, MyType>.
+                // Expected: SomeInner<maybe_more_inner>.
                 if args.args.len() != 1 {
                     return Err(ParseError::new(
                         args.args.span(),
@@ -372,25 +363,26 @@ fn parse_account(mut path: &syn::Path) -> ParseResult<syn::TypePath> {
                 }
                 match &args.args[0] {
                     syn::GenericArgument::Type(syn::Type::Path(ty_path)) => {
-                        path = &ty_path.path;
+                        Ok((&ty_path.path, true))
                     }
-                    _ => {
-                        return Err(ParseError::new(
-                            args.args[1].span(),
-                            "first bracket argument must be a lifetime",
-                        ))
-                    }
+                    _ => Err(ParseError::new(
+                        args.args[1].span(),
+                        "first bracket argument must be a lifetime",
+                    )),
                 }
             }
-            _ => {
-                return Err(ParseError::new(
-                    segments.arguments.span(),
-                    "expected angle brackets with a lifetime and type",
-                ))
-            }
+            _ => Err(ParseError::new(
+                segments.arguments.span(),
+                "expected angle brackets with a lifetime and type",
+            )),
         }
+    } else {
+        Ok((path, false))
     }
+}
 
+// TODO: this whole method is a hack. Do something more idiomatic.
+fn parse_account(path: &syn::Path) -> ParseResult<syn::TypePath> {
     let segments = &path.segments[0];
     match &segments.arguments {
         syn::PathArguments::AngleBracketed(args) => {

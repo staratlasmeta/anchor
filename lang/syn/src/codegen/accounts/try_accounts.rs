@@ -47,8 +47,7 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
                         quote! {
                             #[cfg(feature = "anchor-debug")]
                             ::solana_program::log::sol_log(stringify!(#typed_name));
-                            let #typed_name = anchor_lang::Accounts::try_accounts(program_id, accounts, ix_data, __bumps, __reallocs)
-                                .map_err(|e| e.with_account_name(#name))?;
+                            let #typed_name = anchor_lang::Accounts::try_accounts_with_name(program_id, accounts, ix_data, __bumps, __reallocs, #name)?;
                         }
                     }
                 }

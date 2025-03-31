@@ -22,3 +22,6 @@ solana-sdk.workspace = true
 thiserror.workspace = true
 url.workspace = true
 
+# Locked versions
+litemap.workspace = true
+zerofrom.workspace = true
