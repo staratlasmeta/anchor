@@ -1,4 +1,3 @@
-#![feature(trivial_bounds)]
 #![allow(clippy::crate_in_macro_def, clippy::result_large_err)]
 
 //! Anchor ⚓ is a framework for Solana's Sealevel runtime providing several
@@ -102,9 +101,8 @@ pub trait Accounts<'info>: ToAccountMetas + ToAccountInfos<'info> + Sized {
         reallocs: &mut BTreeSet<Pubkey>,
         name: impl ToString,
     ) -> Result<Self> {
-        Self::try_accounts(program_id, accounts, ix_data, bumps, reallocs).map_err(|e| {
-            e.with_account_name(name)
-        })
+        Self::try_accounts(program_id, accounts, ix_data, bumps, reallocs)
+            .map_err(|e| e.with_account_name(name))
     }
 }
 
