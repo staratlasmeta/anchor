@@ -28,7 +28,6 @@ struct Inner<'info, T: AccountSerialize + AccountDeserialize + Clone> {
 }
 
 #[allow(deprecated)]
-
 impl<'a, T: AccountSerialize + AccountDeserialize + Clone> ProgramState<'a, T> {
     fn new(info: AccountInfo<'a>, account: T) -> ProgramState<'a, T> {
         Self {

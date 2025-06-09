@@ -1,9 +1,9 @@
-use syn::Meta;
 use crate::parser::docs;
 use crate::parser::program::ctx_accounts_ident;
 use crate::{FallbackFn, Ix, IxArg, IxReturn};
 use syn::parse::{Error as ParseError, Result as ParseResult};
 use syn::spanned::Spanned;
+use syn::Meta;
 
 // Parse all non-state ix handlers from the program mod definition.
 pub fn parse(program_mod: &syn::ItemMod) -> ParseResult<(Vec<Ix>, Option<FallbackFn>)> {
@@ -28,12 +28,11 @@ pub fn parse(program_mod: &syn::ItemMod) -> ParseResult<(Vec<Ix>, Option<Fallbac
             let docs = docs::parse(&method.attrs);
             let returns = parse_return(method)?;
             let anchor_ident = ctx_accounts_ident(&ctx.raw_arg)?;
-            let needs_remaining_accounts = method.attrs.iter().any(|attr| {
-                match attr.parse_meta() {
+            let needs_remaining_accounts =
+                method.attrs.iter().any(|attr| match attr.parse_meta() {
                     Ok(Meta::Path(path)) => path.is_ident("remaining_accounts"),
                     _ => false,
-                }
-            });
+                });
             Ok(Ix {
                 needs_remaining_accounts,
                 raw_method: method.clone(),
@@ -117,7 +116,9 @@ pub fn parse_return(method: &syn::ItemFn) -> ParseResult<IxReturn> {
             // Assume unit return by default
             let default_generic_arg = syn::GenericArgument::Type(syn::parse_str("()").unwrap());
             let generic_args = match &ty.path.segments.last().unwrap().arguments {
-                syn::PathArguments::AngleBracketed(params) => params.args.iter().last().unwrap(),
+                syn::PathArguments::AngleBracketed(params) => {
+                    params.args.iter().next_back().unwrap()
+                }
                 _ => &default_generic_arg,
             };
             let ty = match generic_args {

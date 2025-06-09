@@ -736,7 +736,7 @@ fn expand_program(
     let exit = std::process::Command::new("cargo")
         .arg("expand")
         .arg(target_dir_arg)
-        .arg(&format!("--package={}", package_name))
+        .arg(format!("--package={}", package_name))
         .args(cargo_args)
         .stderr(Stdio::inherit())
         .output()
@@ -1627,7 +1627,7 @@ fn idl_write_buffer(
 
 fn idl_set_buffer(cfg_override: &ConfigOverride, program_id: Pubkey, buffer: Pubkey) -> Result<()> {
     with_workspace(cfg_override, |cfg| {
-        let keypair = solana_sdk::signature::read_keypair_file(&cfg.provider.wallet.to_string())
+        let keypair = solana_sdk::signature::read_keypair_file(cfg.provider.wallet.to_string())
             .map_err(|_| anyhow!("Unable to read keypair file"))?;
         let url = cluster_url(cfg, &cfg.test_validator);
         let client = RpcClient::new(url);
@@ -1718,7 +1718,7 @@ fn idl_set_authority(
             None => IdlAccount::address(&program_id),
             Some(addr) => addr,
         };
-        let keypair = solana_sdk::signature::read_keypair_file(&cfg.provider.wallet.to_string())
+        let keypair = solana_sdk::signature::read_keypair_file(cfg.provider.wallet.to_string())
             .map_err(|_| anyhow!("Unable to read keypair file"))?;
         let url = cluster_url(cfg, &cfg.test_validator);
         let client = RpcClient::new(url);
@@ -1779,7 +1779,7 @@ fn idl_erase_authority(cfg_override: &ConfigOverride, program_id: Pubkey) -> Res
 }
 
 fn idl_close_account(cfg: &Config, program_id: &Pubkey, idl_address: Pubkey) -> Result<()> {
-    let keypair = solana_sdk::signature::read_keypair_file(&cfg.provider.wallet.to_string())
+    let keypair = solana_sdk::signature::read_keypair_file(cfg.provider.wallet.to_string())
         .map_err(|_| anyhow!("Unable to read keypair file"))?;
     let url = cluster_url(cfg, &cfg.test_validator);
     let client = RpcClient::new(url);
@@ -1825,7 +1825,7 @@ fn idl_write(cfg: &Config, program_id: &Pubkey, idl: &Idl, idl_address: Pubkey) 
     idl.metadata = None;
 
     // Misc.
-    let keypair = solana_sdk::signature::read_keypair_file(&cfg.provider.wallet.to_string())
+    let keypair = solana_sdk::signature::read_keypair_file(cfg.provider.wallet.to_string())
         .map_err(|_| anyhow!("Unable to read keypair file"))?;
     let url = cluster_url(cfg, &cfg.test_validator);
     let client = RpcClient::new(url);
@@ -2260,7 +2260,7 @@ fn stream_logs(config: &WithPath<Config>, rpc_url: &str) -> Result<Vec<std::proc
     fs::create_dir_all(program_logs_dir)?;
     let mut handles = vec![];
     for program in config.read_all_programs()? {
-        let mut file = File::open(&format!("target/idl/{}.json", program.lib_name))?;
+        let mut file = File::open(format!("target/idl/{}.json", program.lib_name))?;
         let mut contents = vec![];
         file.read_to_end(&mut contents)?;
         let idl: Idl = serde_json::from_slice(&contents)?;
@@ -2563,7 +2563,7 @@ fn upgrade(
             .arg("--url")
             .arg(url)
             .arg("--keypair")
-            .arg(&cfg.provider.wallet.to_string())
+            .arg(cfg.provider.wallet.to_string())
             .arg("--program-id")
             .arg(program_id.to_string())
             .arg(&program_filepath)

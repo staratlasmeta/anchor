@@ -182,7 +182,7 @@ impl WithPath<Config> {
     pub fn read_all_programs(&self) -> Result<Vec<Program>> {
         let mut r = vec![];
         for path in self.get_program_list()? {
-            let cargo = Manifest::from_path(&path.join("Cargo.toml"))?;
+            let cargo = Manifest::from_path(path.join("Cargo.toml"))?;
             let lib_name = cargo.lib_name()?;
 
             let idl_filepath = format!("target/idl/{}.json", lib_name);
@@ -406,7 +406,7 @@ impl Config {
     }
 
     pub fn wallet_kp(&self) -> Result<Keypair> {
-        solana_sdk::signature::read_keypair_file(&self.provider.wallet.to_string())
+        solana_sdk::signature::read_keypair_file(self.provider.wallet.to_string())
             .map_err(|_| anyhow!("Unable to read keypair file"))
     }
 }

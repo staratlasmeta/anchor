@@ -1,6 +1,7 @@
 [package]
 name = "anchor-cli"
 version.workspace = true
+rust-version.workspace = true
 authors = ["armaniferrante <armaniferrante@gmail.com>"]
 edition = "2021"
 repository = "https://github.com/coral-xyz/anchor"
@@ -45,8 +46,4 @@ tar.workspace = true
 tokio.workspace = true
 toml.workspace = true
 walkdir.workspace = true
-
-# Locked versions
-litemap.workspace = true
-zerofrom.workspace = true
 

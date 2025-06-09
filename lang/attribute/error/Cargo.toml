@@ -1,6 +1,7 @@
 [package]
 name = "anchor-attribute-error"
 version.workspace = true
+rust-version.workspace = true
 authors = ["Serum Foundation <foundation@projectserum.com>"]
 repository = "https://github.com/staratlasmeta/anchor.git"
 license = "Apache-2.0"

@@ -1,6 +1,7 @@
 [package]
 name = "anchor-lang"
 version.workspace = true
+rust-version.workspace = true
 authors = ["Serum Foundation <foundation@projectserum.com>"]
 repository = "https://github.com/coral-xyz/anchor"
 edition = "2021"
@@ -25,7 +26,6 @@ anchor-debug = [
     "anchor-attribute-state/anchor-debug",
     "anchor-derive-accounts/anchor-debug"
 ]
-locked-versions = ["base64ct", "bytemuck_derive", "fixed", "half", "litemap", "native-tls", "zerofrom"]
 
 [dependencies]
 anchor-attribute-access-control.workspace = true
@@ -45,12 +45,3 @@ borsh.workspace = true
 bytemuck.workspace = true
 solana-program.workspace = true
 thiserror.workspace = true
-
-# locked versions
-base64ct = { workspace = true, optional = true }
-bytemuck_derive = { workspace = true, optional = true }
-fixed = { workspace = true, optional = true }
-half = { workspace = true, optional = true }
-litemap = { workspace = true, optional = true }
-native-tls = { workspace = true, optional = true }
-zerofrom = { workspace = true, optional = true }
