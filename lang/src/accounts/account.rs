@@ -87,9 +87,9 @@ use std::ops::{Deref, DerefMut};
 /// those programs are not annotated with `#[account]` so you have to
 /// - create a wrapper type around the structs you want to wrap with Account
 /// - implement the functions required by Account yourself
-/// instead of using `#[account]`. You only have to implement a fraction of the
-/// functions `#[account]` generates. See the example below for the code you have
-/// to write.
+///   instead of using `#[account]`. You only have to implement a fraction of the
+///   functions `#[account]` generates. See the example below for the code you have
+///   to write.
 ///
 /// The mint wrapper type that Anchor provides out of the box for the token program ([source](https://github.com/coral-xyz/anchor/blob/master/spl/src/token.rs))
 /// ```ignore

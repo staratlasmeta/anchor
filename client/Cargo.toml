@@ -1,6 +1,7 @@
 [package]
 name = "anchor-client"
 version.workspace = true
+rust-version.workspace = true
 authors = ["Serum Foundation <foundation@projectserum.com>"]
 edition = "2021"
 license = "Apache-2.0"
@@ -21,7 +22,3 @@ solana-client.workspace = true
 solana-sdk.workspace = true
 thiserror.workspace = true
 url.workspace = true
-
-# Locked versions
-litemap.workspace = true
-zerofrom.workspace = true

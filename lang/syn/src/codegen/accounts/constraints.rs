@@ -6,11 +6,14 @@ use syn::Expr;
 pub fn generate(f: &Field) -> proc_macro2::TokenStream {
     let constraints = linearize(&f.constraints);
 
-    let rent = constraints
+    let rent = if constraints
         .iter()
         .any(|c| matches!(c, Constraint::RentExempt(ConstraintRentExempt::Enforce)))
-        .then(|| quote! { let __anchor_rent = Rent::get()?; })
-        .unwrap_or_else(|| quote! {});
+    {
+        quote! { let __anchor_rent = Rent::get()?; }
+    } else {
+        quote! {}
+    };
 
     let checks: Vec<proc_macro2::TokenStream> = constraints
         .iter()
